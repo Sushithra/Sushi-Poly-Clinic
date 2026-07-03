@@ -1,0 +1,1 @@
+// Consultations route placeholder.

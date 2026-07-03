@@ -1,0 +1,1 @@
+// Appointments controller placeholder.

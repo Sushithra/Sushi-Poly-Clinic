@@ -1,0 +1,499 @@
+[2m10:59:18 pm[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (271:12)
+
+[0m [90m 269 |[31m               [33m<[31m[33mh2[31m className[33m=[31m[32m"text-xl font-bold text-neutral-900"[31m[33m>[31m[33mHealth[31m [33mRecords[31m[33m<[31m[33m/[31m[33mh2[31m[33m>[31m
+ [90m 270 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+[31m[1m>[22m[31m[90m 271 |[31m             [33m<[31m[33mdiv[31m className[33m=[31m[32m"p-6"[31m[33m>[31m
+ [90m     |[31m             [31m[1m^[22m[31m
+ [90m 272 |[31m               [33m<[31m[33mlabel[31m className[33m=[31m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[31m[33m>[31m
+ [90m 273 |[31m                 [33m<[31m[33msvg[31m className[33m=[31m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[31m fill[33m=[31m[32m"none"[31m viewBox[33m=[31m[32m"0 0 24 24"[31m stroke[33m=[31m[32m"currentColor"[31m[33m>[31m[33m<[31m[33mpath[31m strokeLinecap[33m=[31m[32m"round"[31m strokeLinejoin[33m=[31m[32m"round"[31m strokeWidth[33m=[31m{[35m2[31m} d[33m=[31m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[31m [33m/[31m[33m>[31m[33m<[31m[33m/[31m[33msvg[31m[33m>[31m
+ [90m 274 |[31m                 [33m<[31m[33mspan[31m className[33m=[31m[32m"text-sm font-medium text-primary-600"[31m[33m>[31m{uploading [33m?[31m [32m'Uploading securely...'[31m [33m:[31m [32m'Click to upload records'[31m}[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/ELCOT/Eclinic/client/src/pages/patient/PatientDashboard.jsx[39m:271:12
+[33m  269|                <h2 className="text-xl font-bold text-neutral-900">Health Records</h2>
+  270|              </div>
+  271|              <div className="p-6">
+     |              ^
+  272|                <label className="border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group">
+  273|                  <svg className="w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>[39m
+      at constructor (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4754:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4774:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11098:23)
+      at JSXParserMixin.parseUpdate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10916:61)
+      at JSXParserMixin.parseExprOps (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10801:23)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:39
+      at JSXParserMixin.allowInAnd (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12438:16)
+      at JSXParserMixin.parseExpression (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:17)
+      at JSXParserMixin.parseStatementContent (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12912:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13333:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13326:10)
+      at JSXParserMixin.parseProgram (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12639:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12629:25)
+      at JSXParserMixin.parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14505:25)
+      at parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14539:38)
+      at parser (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:261:32)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:189:28
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:113:33
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:287:14)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+[2m10:59:24 pm[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (271:12)
+
+[0m [90m 269 |[31m               [33m<[31m[33mh2[31m className[33m=[31m[32m"text-xl font-bold text-neutral-900"[31m[33m>[31m[33mHealth[31m [33mRecords[31m[33m<[31m[33m/[31m[33mh2[31m[33m>[31m
+ [90m 270 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+[31m[1m>[22m[31m[90m 271 |[31m             [33m<[31m[33mdiv[31m className[33m=[31m[32m"p-6"[31m[33m>[31m
+ [90m     |[31m             [31m[1m^[22m[31m
+ [90m 272 |[31m               [33m<[31m[33mlabel[31m className[33m=[31m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[31m[33m>[31m
+ [90m 273 |[31m                 [33m<[31m[33msvg[31m className[33m=[31m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[31m fill[33m=[31m[32m"none"[31m viewBox[33m=[31m[32m"0 0 24 24"[31m stroke[33m=[31m[32m"currentColor"[31m[33m>[31m[33m<[31m[33mpath[31m strokeLinecap[33m=[31m[32m"round"[31m strokeLinejoin[33m=[31m[32m"round"[31m strokeWidth[33m=[31m{[35m2[31m} d[33m=[31m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[31m [33m/[31m[33m>[31m[33m<[31m[33m/[31m[33msvg[31m[33m>[31m
+ [90m 274 |[31m                 [33m<[31m[33mspan[31m className[33m=[31m[32m"text-sm font-medium text-primary-600"[31m[33m>[31m{uploading [33m?[31m [32m'Uploading securely...'[31m [33m:[31m [32m'Click to upload records'[31m}[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/ELCOT/Eclinic/client/src/pages/patient/PatientDashboard.jsx[39m:271:12
+[33m  269|                <h2 className="text-xl font-bold text-neutral-900">Health Records</h2>
+  270|              </div>
+  271|              <div className="p-6">
+     |              ^
+  272|                <label className="border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group">
+  273|                  <svg className="w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>[39m
+      at constructor (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4754:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4774:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11098:23)
+      at JSXParserMixin.parseUpdate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10916:61)
+      at JSXParserMixin.parseExprOps (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10801:23)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:39
+      at JSXParserMixin.allowInAnd (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12438:16)
+      at JSXParserMixin.parseExpression (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:17)
+      at JSXParserMixin.parseStatementContent (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12912:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13333:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13326:10)
+      at JSXParserMixin.parseProgram (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12639:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12629:25)
+      at JSXParserMixin.parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14505:25)
+      at parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14539:38)
+      at parser (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:261:32)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:189:28
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:113:33
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:287:14)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+[2m11:01:23 pm[22m [31m[1m[vite][22m[39m Pre-transform error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (271:12)
+
+[0m [90m 269 |[39m               [33m<[39m[33mh2[39m className[33m=[39m[32m"text-xl font-bold text-neutral-900"[39m[33m>[39m[33mHealth[39m [33mRecords[39m[33m<[39m[33m/[39m[33mh2[39m[33m>[39m
+ [90m 270 |[39m             [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 271 |[39m             [33m<[39m[33mdiv[39m className[33m=[39m[32m"p-6"[39m[33m>[39m
+ [90m     |[39m             [31m[1m^[22m[39m
+ [90m 272 |[39m               [33m<[39m[33mlabel[39m className[33m=[39m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[39m[33m>[39m
+ [90m 273 |[39m                 [33m<[39m[33msvg[39m className[33m=[39m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[39m fill[33m=[39m[32m"none"[39m viewBox[33m=[39m[32m"0 0 24 24"[39m stroke[33m=[39m[32m"currentColor"[39m[33m>[39m[33m<[39m[33mpath[39m strokeLinecap[33m=[39m[32m"round"[39m strokeLinejoin[33m=[39m[32m"round"[39m strokeWidth[33m=[39m{[35m2[39m} d[33m=[39m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[39m [33m/[39m[33m>[39m[33m<[39m[33m/[39m[33msvg[39m[33m>[39m
+ [90m 274 |[39m                 [33m<[39m[33mspan[39m className[33m=[39m[32m"text-sm font-medium text-primary-600"[39m[33m>[39m{uploading [33m?[39m [32m'Uploading securely...'[39m [33m:[39m [32m'Click to upload records'[39m}[33m<[39m[33m/[39m[33mspan[39m[33m>[39m[0m
+[2m11:01:23 pm[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (271:12)
+
+[0m [90m 269 |[31m               [33m<[31m[33mh2[31m className[33m=[31m[32m"text-xl font-bold text-neutral-900"[31m[33m>[31m[33mHealth[31m [33mRecords[31m[33m<[31m[33m/[31m[33mh2[31m[33m>[31m
+ [90m 270 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+[31m[1m>[22m[31m[90m 271 |[31m             [33m<[31m[33mdiv[31m className[33m=[31m[32m"p-6"[31m[33m>[31m
+ [90m     |[31m             [31m[1m^[22m[31m
+ [90m 272 |[31m               [33m<[31m[33mlabel[31m className[33m=[31m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[31m[33m>[31m
+ [90m 273 |[31m                 [33m<[31m[33msvg[31m className[33m=[31m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[31m fill[33m=[31m[32m"none"[31m viewBox[33m=[31m[32m"0 0 24 24"[31m stroke[33m=[31m[32m"currentColor"[31m[33m>[31m[33m<[31m[33mpath[31m strokeLinecap[33m=[31m[32m"round"[31m strokeLinejoin[33m=[31m[32m"round"[31m strokeWidth[33m=[31m{[35m2[31m} d[33m=[31m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[31m [33m/[31m[33m>[31m[33m<[31m[33m/[31m[33msvg[31m[33m>[31m
+ [90m 274 |[31m                 [33m<[31m[33mspan[31m className[33m=[31m[32m"text-sm font-medium text-primary-600"[31m[33m>[31m{uploading [33m?[31m [32m'Uploading securely...'[31m [33m:[31m [32m'Click to upload records'[31m}[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/ELCOT/Eclinic/client/src/pages/patient/PatientDashboard.jsx[39m:271:12
+[33m  269|                <h2 className="text-xl font-bold text-neutral-900">Health Records</h2>
+  270|              </div>
+  271|              <div className="p-6">
+     |              ^
+  272|                <label className="border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group">
+  273|                  <svg className="w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>[39m
+      at constructor (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4754:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4774:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11098:23)
+      at JSXParserMixin.parseUpdate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10916:61)
+      at JSXParserMixin.parseExprOps (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10801:23)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:39
+      at JSXParserMixin.allowInAnd (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12438:16)
+      at JSXParserMixin.parseExpression (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:17)
+      at JSXParserMixin.parseStatementContent (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12912:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13333:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13326:10)
+      at JSXParserMixin.parseProgram (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12639:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12629:25)
+      at JSXParserMixin.parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14505:25)
+      at parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14539:38)
+      at parser (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:261:32)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:189:28
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:113:33
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:287:14)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+[2m11:01:29 pm[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (271:12)
+
+[0m [90m 269 |[31m               [33m<[31m[33mh2[31m className[33m=[31m[32m"text-xl font-bold text-neutral-900"[31m[33m>[31m[33mHealth[31m [33mRecords[31m[33m<[31m[33m/[31m[33mh2[31m[33m>[31m
+ [90m 270 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+[31m[1m>[22m[31m[90m 271 |[31m             [33m<[31m[33mdiv[31m className[33m=[31m[32m"p-6"[31m[33m>[31m
+ [90m     |[31m             [31m[1m^[22m[31m
+ [90m 272 |[31m               [33m<[31m[33mlabel[31m className[33m=[31m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[31m[33m>[31m
+ [90m 273 |[31m                 [33m<[31m[33msvg[31m className[33m=[31m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[31m fill[33m=[31m[32m"none"[31m viewBox[33m=[31m[32m"0 0 24 24"[31m stroke[33m=[31m[32m"currentColor"[31m[33m>[31m[33m<[31m[33mpath[31m strokeLinecap[33m=[31m[32m"round"[31m strokeLinejoin[33m=[31m[32m"round"[31m strokeWidth[33m=[31m{[35m2[31m} d[33m=[31m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[31m [33m/[31m[33m>[31m[33m<[31m[33m/[31m[33msvg[31m[33m>[31m
+ [90m 274 |[31m                 [33m<[31m[33mspan[31m className[33m=[31m[32m"text-sm font-medium text-primary-600"[31m[33m>[31m{uploading [33m?[31m [32m'Uploading securely...'[31m [33m:[31m [32m'Click to upload records'[31m}[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/ELCOT/Eclinic/client/src/pages/patient/PatientDashboard.jsx[39m:271:12
+[33m  269|                <h2 className="text-xl font-bold text-neutral-900">Health Records</h2>
+  270|              </div>
+  271|              <div className="p-6">
+     |              ^
+  272|                <label className="border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group">
+  273|                  <svg className="w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>[39m
+      at constructor (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4754:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4774:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11098:23)
+      at JSXParserMixin.parseUpdate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10916:61)
+      at JSXParserMixin.parseExprOps (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10801:23)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:39
+      at JSXParserMixin.allowInAnd (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12438:16)
+      at JSXParserMixin.parseExpression (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:17)
+      at JSXParserMixin.parseStatementContent (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12912:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13333:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13326:10)
+      at JSXParserMixin.parseProgram (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12639:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12629:25)
+      at JSXParserMixin.parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14505:25)
+      at parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14539:38)
+      at parser (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:261:32)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:189:28
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:113:33
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:287:14)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+[2m11:02:55 pm[22m [31m[1m[vite][22m[39m Pre-transform error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (302:12)
+
+[0m [90m 300 |[39m               [33m<[39m[33mh2[39m className[33m=[39m[32m"text-xl font-bold text-neutral-900"[39m[33m>[39m[33mHealth[39m [33mRecords[39m[33m<[39m[33m/[39m[33mh2[39m[33m>[39m
+ [90m 301 |[39m             [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 302 |[39m             [33m<[39m[33mdiv[39m className[33m=[39m[32m"p-6"[39m[33m>[39m
+ [90m     |[39m             [31m[1m^[22m[39m
+ [90m 303 |[39m               [33m<[39m[33mlabel[39m className[33m=[39m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[39m[33m>[39m
+ [90m 304 |[39m                 [33m<[39m[33msvg[39m className[33m=[39m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[39m fill[33m=[39m[32m"none"[39m viewBox[33m=[39m[32m"0 0 24 24"[39m stroke[33m=[39m[32m"currentColor"[39m[33m>[39m[33m<[39m[33mpath[39m strokeLinecap[33m=[39m[32m"round"[39m strokeLinejoin[33m=[39m[32m"round"[39m strokeWidth[33m=[39m{[35m2[39m} d[33m=[39m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[39m [33m/[39m[33m>[39m[33m<[39m[33m/[39m[33msvg[39m[33m>[39m
+ [90m 305 |[39m                 [33m<[39m[33mspan[39m className[33m=[39m[32m"text-sm font-medium text-primary-600"[39m[33m>[39m{uploading [33m?[39m [32m'Uploading securely...'[39m [33m:[39m [32m'Click to upload records'[39m}[33m<[39m[33m/[39m[33mspan[39m[33m>[39m[0m
+[2m11:02:56 pm[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (302:12)
+
+[0m [90m 300 |[31m               [33m<[31m[33mh2[31m className[33m=[31m[32m"text-xl font-bold text-neutral-900"[31m[33m>[31m[33mHealth[31m [33mRecords[31m[33m<[31m[33m/[31m[33mh2[31m[33m>[31m
+ [90m 301 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+[31m[1m>[22m[31m[90m 302 |[31m             [33m<[31m[33mdiv[31m className[33m=[31m[32m"p-6"[31m[33m>[31m
+ [90m     |[31m             [31m[1m^[22m[31m
+ [90m 303 |[31m               [33m<[31m[33mlabel[31m className[33m=[31m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[31m[33m>[31m
+ [90m 304 |[31m                 [33m<[31m[33msvg[31m className[33m=[31m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[31m fill[33m=[31m[32m"none"[31m viewBox[33m=[31m[32m"0 0 24 24"[31m stroke[33m=[31m[32m"currentColor"[31m[33m>[31m[33m<[31m[33mpath[31m strokeLinecap[33m=[31m[32m"round"[31m strokeLinejoin[33m=[31m[32m"round"[31m strokeWidth[33m=[31m{[35m2[31m} d[33m=[31m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[31m [33m/[31m[33m>[31m[33m<[31m[33m/[31m[33msvg[31m[33m>[31m
+ [90m 305 |[31m                 [33m<[31m[33mspan[31m className[33m=[31m[32m"text-sm font-medium text-primary-600"[31m[33m>[31m{uploading [33m?[31m [32m'Uploading securely...'[31m [33m:[31m [32m'Click to upload records'[31m}[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/ELCOT/Eclinic/client/src/pages/patient/PatientDashboard.jsx[39m:302:12
+[33m  300|                <h2 className="text-xl font-bold text-neutral-900">Health Records</h2>
+  301|              </div>
+  302|              <div className="p-6">
+     |              ^
+  303|                <label className="border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group">
+  304|                  <svg className="w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>[39m
+      at constructor (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4754:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4774:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11098:23)
+      at JSXParserMixin.parseUpdate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10916:61)
+      at JSXParserMixin.parseExprOps (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10801:23)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:39
+      at JSXParserMixin.allowInAnd (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12438:16)
+      at JSXParserMixin.parseExpression (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:17)
+      at JSXParserMixin.parseStatementContent (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12912:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13333:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13326:10)
+      at JSXParserMixin.parseProgram (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12639:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12629:25)
+      at JSXParserMixin.parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14505:25)
+      at parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14539:38)
+      at parser (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:261:32)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:189:28
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:113:33
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:287:14)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+[2m11:03:07 pm[22m [31m[1m[vite][22m[39m Pre-transform error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (302:12)
+
+[0m [90m 300 |[39m               [33m<[39m[33mh2[39m className[33m=[39m[32m"text-xl font-bold text-neutral-900"[39m[33m>[39m[33mHealth[39m [33mRecords[39m[33m<[39m[33m/[39m[33mh2[39m[33m>[39m
+ [90m 301 |[39m             [33m<[39m[33m/[39m[33mdiv[39m[33m>[39m
+[31m[1m>[22m[39m[90m 302 |[39m             [33m<[39m[33mdiv[39m className[33m=[39m[32m"p-6"[39m[33m>[39m
+ [90m     |[39m             [31m[1m^[22m[39m
+ [90m 303 |[39m               [33m<[39m[33mlabel[39m className[33m=[39m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[39m[33m>[39m
+ [90m 304 |[39m                 [33m<[39m[33msvg[39m className[33m=[39m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[39m fill[33m=[39m[32m"none"[39m viewBox[33m=[39m[32m"0 0 24 24"[39m stroke[33m=[39m[32m"currentColor"[39m[33m>[39m[33m<[39m[33mpath[39m strokeLinecap[33m=[39m[32m"round"[39m strokeLinejoin[33m=[39m[32m"round"[39m strokeWidth[33m=[39m{[35m2[39m} d[33m=[39m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[39m [33m/[39m[33m>[39m[33m<[39m[33m/[39m[33msvg[39m[33m>[39m
+ [90m 305 |[39m                 [33m<[39m[33mspan[39m className[33m=[39m[32m"text-sm font-medium text-primary-600"[39m[33m>[39m{uploading [33m?[39m [32m'Uploading securely...'[39m [33m:[39m [32m'Click to upload records'[39m}[33m<[39m[33m/[39m[33mspan[39m[33m>[39m[0m
+[2m11:03:07 pm[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (302:12)
+
+[0m [90m 300 |[31m               [33m<[31m[33mh2[31m className[33m=[31m[32m"text-xl font-bold text-neutral-900"[31m[33m>[31m[33mHealth[31m [33mRecords[31m[33m<[31m[33m/[31m[33mh2[31m[33m>[31m
+ [90m 301 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+[31m[1m>[22m[31m[90m 302 |[31m             [33m<[31m[33mdiv[31m className[33m=[31m[32m"p-6"[31m[33m>[31m
+ [90m     |[31m             [31m[1m^[22m[31m
+ [90m 303 |[31m               [33m<[31m[33mlabel[31m className[33m=[31m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[31m[33m>[31m
+ [90m 304 |[31m                 [33m<[31m[33msvg[31m className[33m=[31m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[31m fill[33m=[31m[32m"none"[31m viewBox[33m=[31m[32m"0 0 24 24"[31m stroke[33m=[31m[32m"currentColor"[31m[33m>[31m[33m<[31m[33mpath[31m strokeLinecap[33m=[31m[32m"round"[31m strokeLinejoin[33m=[31m[32m"round"[31m strokeWidth[33m=[31m{[35m2[31m} d[33m=[31m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[31m [33m/[31m[33m>[31m[33m<[31m[33m/[31m[33msvg[31m[33m>[31m
+ [90m 305 |[31m                 [33m<[31m[33mspan[31m className[33m=[31m[32m"text-sm font-medium text-primary-600"[31m[33m>[31m{uploading [33m?[31m [32m'Uploading securely...'[31m [33m:[31m [32m'Click to upload records'[31m}[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/ELCOT/Eclinic/client/src/pages/patient/PatientDashboard.jsx[39m:302:12
+[33m  300|                <h2 className="text-xl font-bold text-neutral-900">Health Records</h2>
+  301|              </div>
+  302|              <div className="p-6">
+     |              ^
+  303|                <label className="border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group">
+  304|                  <svg className="w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>[39m
+      at constructor (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4754:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4774:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11098:23)
+      at JSXParserMixin.parseUpdate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10916:61)
+      at JSXParserMixin.parseExprOps (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10801:23)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:39
+      at JSXParserMixin.allowInAnd (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12438:16)
+      at JSXParserMixin.parseExpression (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:17)
+      at JSXParserMixin.parseStatementContent (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12912:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13333:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13326:10)
+      at JSXParserMixin.parseProgram (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12639:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12629:25)
+      at JSXParserMixin.parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14505:25)
+      at parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14539:38)
+      at parser (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:261:32)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:189:28
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:113:33
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:287:14)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+[2m11:03:59 pm[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (302:12)
+
+[0m [90m 300 |[31m               [33m<[31m[33mh2[31m className[33m=[31m[32m"text-xl font-bold text-neutral-900"[31m[33m>[31m[33mHealth[31m [33mRecords[31m[33m<[31m[33m/[31m[33mh2[31m[33m>[31m
+ [90m 301 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+[31m[1m>[22m[31m[90m 302 |[31m             [33m<[31m[33mdiv[31m className[33m=[31m[32m"p-6"[31m[33m>[31m
+ [90m     |[31m             [31m[1m^[22m[31m
+ [90m 303 |[31m               [33m<[31m[33mlabel[31m className[33m=[31m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[31m[33m>[31m
+ [90m 304 |[31m                 [33m<[31m[33msvg[31m className[33m=[31m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[31m fill[33m=[31m[32m"none"[31m viewBox[33m=[31m[32m"0 0 24 24"[31m stroke[33m=[31m[32m"currentColor"[31m[33m>[31m[33m<[31m[33mpath[31m strokeLinecap[33m=[31m[32m"round"[31m strokeLinejoin[33m=[31m[32m"round"[31m strokeWidth[33m=[31m{[35m2[31m} d[33m=[31m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[31m [33m/[31m[33m>[31m[33m<[31m[33m/[31m[33msvg[31m[33m>[31m
+ [90m 305 |[31m                 [33m<[31m[33mspan[31m className[33m=[31m[32m"text-sm font-medium text-primary-600"[31m[33m>[31m{uploading [33m?[31m [32m'Uploading securely...'[31m [33m:[31m [32m'Click to upload records'[31m}[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/ELCOT/Eclinic/client/src/pages/patient/PatientDashboard.jsx[39m:302:12
+[33m  300|                <h2 className="text-xl font-bold text-neutral-900">Health Records</h2>
+  301|              </div>
+  302|              <div className="p-6">
+     |              ^
+  303|                <label className="border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group">
+  304|                  <svg className="w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>[39m
+      at constructor (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4754:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4774:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11098:23)
+      at JSXParserMixin.parseUpdate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10916:61)
+      at JSXParserMixin.parseExprOps (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10801:23)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:39
+      at JSXParserMixin.allowInAnd (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12438:16)
+      at JSXParserMixin.parseExpression (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:17)
+      at JSXParserMixin.parseStatementContent (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12912:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13333:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13326:10)
+      at JSXParserMixin.parseProgram (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12639:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12629:25)
+      at JSXParserMixin.parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14505:25)
+      at parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14539:38)
+      at parser (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:261:32)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:189:28
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:113:33
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:287:14)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+[2m11:04:02 pm[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\ELCOT\Eclinic\client\src\pages\patient\PatientDashboard.jsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (302:12)
+
+[0m [90m 300 |[31m               [33m<[31m[33mh2[31m className[33m=[31m[32m"text-xl font-bold text-neutral-900"[31m[33m>[31m[33mHealth[31m [33mRecords[31m[33m<[31m[33m/[31m[33mh2[31m[33m>[31m
+ [90m 301 |[31m             [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+[31m[1m>[22m[31m[90m 302 |[31m             [33m<[31m[33mdiv[31m className[33m=[31m[32m"p-6"[31m[33m>[31m
+ [90m     |[31m             [31m[1m^[22m[31m
+ [90m 303 |[31m               [33m<[31m[33mlabel[31m className[33m=[31m[32m"border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group"[31m[33m>[31m
+ [90m 304 |[31m                 [33m<[31m[33msvg[31m className[33m=[31m[32m"w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition"[31m fill[33m=[31m[32m"none"[31m viewBox[33m=[31m[32m"0 0 24 24"[31m stroke[33m=[31m[32m"currentColor"[31m[33m>[31m[33m<[31m[33mpath[31m strokeLinecap[33m=[31m[32m"round"[31m strokeLinejoin[33m=[31m[32m"round"[31m strokeWidth[33m=[31m{[35m2[31m} d[33m=[31m[32m"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"[31m [33m/[31m[33m>[31m[33m<[31m[33m/[31m[33msvg[31m[33m>[31m
+ [90m 305 |[31m                 [33m<[31m[33mspan[31m className[33m=[31m[32m"text-sm font-medium text-primary-600"[31m[33m>[31m{uploading [33m?[31m [32m'Uploading securely...'[31m [33m:[31m [32m'Click to upload records'[31m}[33m<[31m[33m/[31m[33mspan[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/ELCOT/Eclinic/client/src/pages/patient/PatientDashboard.jsx[39m:302:12
+[33m  300|                <h2 className="text-xl font-bold text-neutral-900">Health Records</h2>
+  301|              </div>
+  302|              <div className="p-6">
+     |              ^
+  303|                <label className="border-2 border-dashed border-neutral-300 rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer hover:bg-neutral-50 transition group">
+  304|                  <svg className="w-10 h-10 text-neutral-400 mb-3 group-hover:text-primary-500 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>[39m
+      at constructor (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:365:19)
+      at JSXParserMixin.raise (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:6616:19)
+      at JSXParserMixin.jsxParseElementAt (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4754:18)
+      at JSXParserMixin.jsxParseElement (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4761:17)
+      at JSXParserMixin.parseExprAtom (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:4774:19)
+      at JSXParserMixin.parseExprSubscripts (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11098:23)
+      at JSXParserMixin.parseUpdate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11083:21)
+      at JSXParserMixin.parseMaybeUnary (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:11063:23)
+      at JSXParserMixin.parseMaybeUnaryOrPrivate (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10916:61)
+      at JSXParserMixin.parseExprOps (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10921:23)
+      at JSXParserMixin.parseMaybeConditional (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10898:23)
+      at JSXParserMixin.parseMaybeAssign (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10848:21)
+      at JSXParserMixin.parseExpressionBase (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10801:23)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:39
+      at JSXParserMixin.allowInAnd (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12438:16)
+      at JSXParserMixin.parseExpression (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:10797:17)
+      at JSXParserMixin.parseStatementContent (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12912:23)
+      at JSXParserMixin.parseStatementLike (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12784:17)
+      at JSXParserMixin.parseModuleItem (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12761:17)
+      at JSXParserMixin.parseBlockOrModuleBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13333:36)
+      at JSXParserMixin.parseBlockBody (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:13326:10)
+      at JSXParserMixin.parseProgram (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12639:10)
+      at JSXParserMixin.parseTopLevel (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:12629:25)
+      at JSXParserMixin.parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14505:25)
+      at parse (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\parser\lib\index.js:14539:38)
+      at parser (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\parser\index.js:41:34)
+      at parser.next (<anonymous>)
+      at normalizeFile (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\normalize-file.js:64:37)
+      at normalizeFile.next (<anonymous>)
+      at run (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transformation\index.js:22:50)
+      at run.next (<anonymous>)
+      at transform (C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\transform.js:22:33)
+      at transform.next (<anonymous>)
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:261:32)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:189:28
+      at C:\Users\ELCOT\Eclinic\client\node_modules\@babel\core\lib\gensync-utils\async.js:67:7
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:113:33
+      at step (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:287:14)
+      at C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:273:13
+      at async.call.result.err.err (C:\Users\ELCOT\Eclinic\client\node_modules\gensync\index.js:223:11)

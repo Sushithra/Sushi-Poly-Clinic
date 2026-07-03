@@ -1,0 +1,1 @@
+// Appointments route placeholder.

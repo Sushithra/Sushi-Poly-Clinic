@@ -1,0 +1,1 @@
+// Patient consultation components placeholder.

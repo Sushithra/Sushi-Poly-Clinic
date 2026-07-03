@@ -1,0 +1,1 @@
+// Prescriptions route placeholder.

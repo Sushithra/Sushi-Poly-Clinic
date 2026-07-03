@@ -1,0 +1,1 @@
+// Products model placeholder.

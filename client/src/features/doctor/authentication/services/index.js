@@ -1,0 +1,1 @@
+// Doctor authentication service placeholder.

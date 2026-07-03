@@ -1,0 +1,1 @@
+// Patient authentication service placeholder.

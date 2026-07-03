@@ -1,0 +1,10 @@
+{
+  "name": "Eclinic",
+  "short_name": "Eclinic",
+  "description": "Progressive Web App scaffold placeholder for the Eclinic telemedicine platform.",
+  "display": "standalone",
+  "start_url": "/",
+  "background_color": "#f4efe7",
+  "theme_color": "#1e7a6d",
+  "icons": []
+}
