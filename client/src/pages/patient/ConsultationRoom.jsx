@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { API_BASE_URL } from '../../config/env.js';
 
 const getSession = () => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -9,7 +10,7 @@ const getSession = () => {
   return userInfo || doctorInfo || null;
 };
 
-const getSocketUrl = () => import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+const getSocketUrl = () => import.meta.env.VITE_SOCKET_URL || API_BASE_URL;
 
 const createPeerConnection = (onCandidate, onTrack, onStateChange) => {
   const peer = new RTCPeerConnection({

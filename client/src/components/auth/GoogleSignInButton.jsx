@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { GOOGLE_CLIENT_ID } from '../../config/env.js';
 
 let googleScriptPromise;
 
@@ -37,7 +38,7 @@ const loadGoogleScript = () => {
 export default function GoogleSignInButton({ onCredential, prompt = 'Continue with Google' }) {
   const containerRef = useRef(null);
   const callbackRef = useRef(onCredential);
-  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const clientId = GOOGLE_CLIENT_ID;
 
   useEffect(() => {
     callbackRef.current = onCredential;
