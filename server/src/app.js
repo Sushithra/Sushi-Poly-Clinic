@@ -28,7 +28,7 @@ app.get("/", (_request, response) => {
       <body style="font-family: sans-serif; text-align: center; padding: 50px;">
         <h2>Sushi Poly Clinic API is Running! 🚀</h2>
         <p>This is the backend server. The actual website is running on port 5173.</p>
-        <a href="http://localhost:5173" style="display: inline-block; padding: 10px 20px; background: #047857; color: white; text-decoration: none; border-radius: 5px;">Go to Website</a>
+        <a href="https://sushi-polyclinic.onrender.com/" style="display: inline-block; padding: 10px 20px; background: #047857; color: white; text-decoration: none; border-radius: 5px;">Go to Website</a>
       </body>
     </html>
   `);
