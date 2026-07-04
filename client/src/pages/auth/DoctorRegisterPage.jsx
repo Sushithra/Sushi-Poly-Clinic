@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Link, useNavigate } from 'react-router-dom';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton.jsx';
+import { API_BASE_URL, IS_BACKEND_URL_DEFAULTED } from '../../config/env.js';
 
 export default function DoctorRegisterPage() {
   const [formData, setFormData] = useState({
@@ -30,6 +31,12 @@ export default function DoctorRegisterPage() {
     setLoading(true);
     setError('');
 
+    if (IS_BACKEND_URL_DEFAULTED && !window.location.hostname.includes('localhost')) {
+      setError(`Backend URL is not configured. Set VITE_API_URL to your Render backend. Current fallback: ${API_BASE_URL}`);
+      setLoading(false);
+      return;
+    }
+
     if (formData.specializations.length === 0) {
       setError('Please select at least one specialization');
       setLoading(false);
@@ -55,6 +62,12 @@ export default function DoctorRegisterPage() {
     try {
       setLoading(true);
       setError('');
+
+      if (IS_BACKEND_URL_DEFAULTED && !window.location.hostname.includes('localhost')) {
+        setError(`Backend URL is not configured. Set VITE_API_URL to your Render backend. Current fallback: ${API_BASE_URL}`);
+        setLoading(false);
+        return;
+      }
 
       if (formData.specializations.length === 0) {
         setError('Please select at least one specialization');
