@@ -11,12 +11,14 @@ const userSchema = new mongoose.Schema({
   emailVerified: { type: Boolean, default: false },
   age: { type: Number, default: null },
   specializations: { type: [String], default: [] },
+  consultationPricing: { type: Object, default: {} },
   experienceYears: { type: Number, default: 0 },
   consultationFee: { type: Number, default: 500 },
   isApproved: { type: Boolean, default: true },
   accountStatus: { type: String, default: 'active' },
   profilePicture: { type: String, default: "" },
   phone: { type: String, default: "" },
+  pushTokens: { type: [String], default: [] },
 }, { timestamps: true });
 
 // Password hashing middleware

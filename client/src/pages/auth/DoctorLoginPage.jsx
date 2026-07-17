@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton.jsx';
+import { registerPushToken } from '../../services/pushNotifications.js';
 
 export default function DoctorLoginPage() {
   const [email, setEmail] = useState('');
@@ -25,6 +26,7 @@ export default function DoctorLoginPage() {
         return;
       }
       localStorage.setItem('doctorInfo', JSON.stringify(data));
+      registerPushToken(data).catch(() => {});
       navigate('/doctor/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to login');
@@ -55,6 +57,7 @@ export default function DoctorLoginPage() {
       }
 
       localStorage.setItem('doctorInfo', JSON.stringify(data));
+      registerPushToken(data).catch(() => {});
       navigate('/doctor/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Google sign-in failed');

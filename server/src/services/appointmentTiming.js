@@ -64,7 +64,7 @@ export const getReminderTime = (appointmentDateTime, minutesBefore = 10) => {
   return new Date(appointmentDateTime.getTime() - minutesBefore * 60 * 1000);
 };
 
-export const getConsultationWindow = (appointmentDateTime, openBeforeMinutes = 1, closeAfterMinutes = 240) => {
+export const getConsultationWindow = (appointmentDateTime, openBeforeMinutes = 0, closeAfterMinutes = 240) => {
   if (!(appointmentDateTime instanceof Date) || Number.isNaN(appointmentDateTime.getTime())) {
     return { startsAt: null, endsAt: null };
   }

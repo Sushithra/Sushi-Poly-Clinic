@@ -83,6 +83,35 @@ export default function DoctorDashboard() {
     }
   };
 
+  const handleCompleteAppointment = async (id) => {
+    try {
+      setActionLoadingId(id);
+      const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
+      await axios.patch(`http://localhost:5000/api/appointments/${id}/complete`, {}, config);
+      await fetchAppointments();
+    } catch (error) {
+      alert('Failed to mark appointment as done: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleCancelAppointment = async (id) => {
+    const reason = window.prompt('Why are you cancelling this appointment?');
+    if (!reason || !reason.trim()) return;
+
+    try {
+      setActionLoadingId(id);
+      const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
+      await axios.patch(`http://localhost:5000/api/appointments/${id}/cancel`, { reason: reason.trim() }, config);
+      await fetchAppointments();
+    } catch (error) {
+      alert('Failed to cancel appointment: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
   const handleAddProduct = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -146,6 +175,12 @@ export default function DoctorDashboard() {
               </span>
             </div>
             <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate('/doctor/patients')}
+                className="text-sm text-blue-600 font-medium hover:text-blue-700 transition"
+              >
+                Patients
+              </button>
               <button
                 onClick={() => navigate('/doctor/profile')}
                 className="text-sm text-blue-600 font-medium hover:text-blue-700 transition"
@@ -259,6 +294,13 @@ export default function DoctorDashboard() {
                                 >
                                   {actionLoadingId === app._id ? 'Confirming...' : 'Accept Appointment'}
                                 </button>
+                                <button
+                                  onClick={() => handleCancelAppointment(app._id)}
+                                  disabled={actionLoadingId === app._id}
+                                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 disabled:opacity-60"
+                                >
+                                  {actionLoadingId === app._id ? 'Cancelling...' : app.paymentStatus === 'paid' ? 'Cancel & refund' : 'Cancel'}
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -292,13 +334,31 @@ export default function DoctorDashboard() {
                                 <span className="px-3 py-1 rounded-full bg-white text-neutral-700 text-xs font-semibold uppercase tracking-wide border border-neutral-200">
                                   {app.paymentStatus === 'paid' ? 'Paid' : 'Awaiting payment'}
                                 </span>
-                                <button
-                                  onClick={() => openConsultation(app._id)}
-                                  disabled={app.status === 'cancelled'}
-                                  className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  {app.status === 'cancelled' ? 'Cancelled' : 'Open consultation'}
-                                </button>
+                                <div className="flex flex-wrap justify-end gap-2">
+                                  <button
+                                    onClick={() => handleCancelAppointment(app._id)}
+                                    disabled={actionLoadingId === app._id}
+                                    className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {actionLoadingId === app._id ? 'Cancelling...' : app.paymentStatus === 'paid' ? 'Cancel & refund' : 'Cancel'}
+                                  </button>
+                                  <button
+                                    onClick={() => openConsultation(app._id)}
+                                    disabled={app.status === 'cancelled' || app.status === 'completed'}
+                                    className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  >
+                                    {app.status === 'cancelled' ? 'Cancelled' : app.status === 'completed' ? 'Completed' : 'Open consultation'}
+                                  </button>
+                                  {app.paymentStatus === 'paid' && app.status !== 'completed' && (
+                                    <button
+                                      onClick={() => handleCompleteAppointment(app._id)}
+                                      disabled={actionLoadingId === app._id}
+                                      className="px-4 py-2 rounded-xl bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                      {actionLoadingId === app._id ? 'Saving...' : 'Mark as done'}
+                                    </button>
+                                  )}
+                                </div>
                               </div>
                             </div>
                             <p className="text-sm text-neutral-700 mt-4">

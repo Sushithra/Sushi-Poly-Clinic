@@ -21,6 +21,7 @@ import PatientDashboard from "../pages/patient/PatientDashboard.jsx";
 import DoctorLoginPage from "../pages/auth/DoctorLoginPage.jsx";
 import DoctorRegisterPage from "../pages/auth/DoctorRegisterPage.jsx";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard.jsx";
+import DoctorPatients from "../pages/doctor/DoctorPatients.jsx";
 import PharmacyPage from "../pages/public/PharmacyPage.jsx";
 import ConsultationRoom from "../pages/patient/ConsultationRoom.jsx";
 
@@ -252,6 +253,10 @@ export default function AppRouter() {
       <Route
         path="/doctor/dashboard"
         element={<DoctorDashboard />}
+      />
+      <Route
+        path="/doctor/patients"
+        element={<DoctorPatients />}
       />
       <Route
         path="/doctor/*"

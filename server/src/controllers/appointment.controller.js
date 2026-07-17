@@ -2,11 +2,11 @@ import Appointment from '../models/Appointment.js';
 import Doctor from '../models/Doctor.js';
 import crypto from 'crypto';
 import { parseAppointmentDateTime, getReminderTime, getConsultationWindow } from '../services/appointmentTiming.js';
-import { queueAppointmentConfirmation, queueAppointmentReceipt, queueAppointmentReminder } from '../services/notification.service.js';
+import { clearAppointmentNotifications, queueAppointmentConfirmation, queueAppointmentReceipt, queueAppointmentReminder, queueAppointmentCancellation, queueAppointmentRefunded } from '../services/notification.service.js';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
 
-const CONSULTATION_WINDOW_BEFORE_MINUTES = 1;
+const CONSULTATION_WINDOW_BEFORE_MINUTES = 0;
 const CONSULTATION_WINDOW_AFTER_MINUTES = 240;
 
 const toObjectIdString = (value) => {
@@ -28,6 +28,14 @@ const buildConsultationRoomName = () => {
   return `eclinic-${suffix}`;
 };
 
+const getConsultationPrice = (doctor, specialty, consultationType) => {
+  const pricing = doctor?.consultationPricing || {};
+  const specialtyPricing = pricing[specialty] || pricing.General || pricing['General Physician'] || {};
+  const resolved = Number(specialtyPricing?.[consultationType]);
+  if (Number.isFinite(resolved) && resolved > 0) return resolved;
+  return Number(doctor?.consultationFee ?? 500);
+};
+
 const getConsultationState = (appointment) => {
   const appointmentDateTime = parseAppointmentDateTime(appointment.date, appointment.timeSlot);
   const { startsAt, endsAt } = getConsultationWindow(
@@ -39,7 +47,7 @@ const getConsultationState = (appointment) => {
 
   const paymentDue = appointment.paymentStatus !== 'paid';
   const isTooEarly = startsAt ? now.getTime() < startsAt.getTime() : true;
-  const isExpired = endsAt ? now.getTime() > endsAt.getTime() : false;
+  const isExpired = appointment.status === 'completed' || appointment.status === 'cancelled';
   const canJoin = !paymentDue && !isTooEarly && !isExpired;
 
   return {
@@ -82,6 +90,8 @@ const buildAccessResponse = (appointment) => {
     consultationProvider: appointment.consultationProvider || 'webrtc',
     consultationRoomName: roomName,
     consultationJoinUrl: '',
+    consultationType: appointment.consultationType || 'video',
+    consultationPrice: appointment.consultationPrice || appointment.doctor?.consultationFee || 500,
     startsAt: consultationState.startsAt,
     endsAt: consultationState.endsAt,
     canJoin: consultationState.canJoin,
@@ -96,13 +106,13 @@ const buildAccessResponse = (appointment) => {
 // @access  Private
 export const bookAppointment = async (req, res) => {
   try {
-    const { doctorId, doctorName, doctorSpecialty, date, timeSlot, complaint, reason, specialty } = req.body;
+    const { doctorId, doctorName, doctorSpecialty, date, timeSlot, complaint, reason, specialty, consultationType = 'video' } = req.body;
 
     if (mongoose.connection.readyState !== 1) {
       return res.status(503).json({ message: 'Database is not connected' });
     }
 
-    const doctor = await User.findOne({ _id: doctorId, role: 'doctor' }).select('name specializations');
+    const doctor = await User.findOne({ _id: doctorId, role: 'doctor' }).select('name specializations consultationPricing consultationFee');
 
     if (!doctor) {
       return res.status(404).json({ message: 'Doctor not found' });
@@ -143,6 +153,8 @@ export const bookAppointment = async (req, res) => {
       patientPhone: req.user.phone || '',
       date,
       timeSlot,
+      consultationType,
+      consultationPrice: getConsultationPrice(doctor, resolvedDoctorSpecialty, consultationType),
       reason: complaint || reason,
       complaint: complaint || reason || '',
       paymentStatus: 'pending',
@@ -517,6 +529,155 @@ export const getConsultationAccess = async (req, res) => {
       message: 'Consultation access granted',
       appointment: roomReadyAppointment,
       consultation,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Mark a paid appointment as completed by the doctor
+// @route   PATCH /api/appointments/:id/complete
+// @access  Private
+export const completeAppointment = async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Database is not connected' });
+    }
+
+    if (req.user?.role !== 'doctor') {
+      return res.status(403).json({ message: 'Only the doctor can mark the consultation as done' });
+    }
+
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      doctor: req.user._id,
+    })
+      .populate({
+        path: 'doctor',
+        select: 'name email specializations profilePicture consultationFee',
+      })
+      .populate({
+        path: 'patient',
+        select: 'name email phone profilePicture',
+      });
+
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+
+    if (appointment.status === 'cancelled') {
+      return res.status(400).json({ message: 'Cancelled appointments cannot be completed' });
+    }
+
+    if (appointment.status === 'completed') {
+      return res.json({
+        message: 'Appointment is already completed',
+        appointment,
+      });
+    }
+
+    if (appointment.paymentStatus !== 'paid') {
+      return res.status(400).json({ message: 'Appointment must be paid before it can be marked complete' });
+    }
+
+    appointment.status = 'completed';
+    appointment.consultationCompletedAt = new Date();
+
+    const updatedAppointment = await appointment.save();
+    const object = updatedAppointment.toObject();
+    object.doctorName = object.doctorName || object.doctor?.name || 'Doctor';
+    object.doctorSpecialty =
+      object.doctorSpecialty ||
+      (Array.isArray(object.doctor?.specializations) && object.doctor.specializations.length > 0
+        ? object.doctor.specializations.join(', ')
+        : 'General Physician');
+    object.patientName = object.patientName || object.patient?.name || 'Patient';
+    object.patientEmail = object.patientEmail || object.patient?.email || '';
+    object.patientPhone = object.patientPhone || object.patient?.phone || '';
+
+    res.json({
+      message: 'Appointment marked as completed',
+      appointment: object,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Cancel a booked appointment by the doctor
+// @route   PATCH /api/appointments/:id/cancel
+// @access  Private
+export const cancelAppointment = async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Database is not connected' });
+    }
+
+    if (req.user?.role !== 'doctor') {
+      return res.status(403).json({ message: 'Only the doctor can cancel this appointment' });
+    }
+
+    const reason = String(req.body?.reason || '').trim();
+    if (!reason) {
+      return res.status(400).json({ message: 'Cancellation reason is required' });
+    }
+
+    const appointment = await Appointment.findOne({
+      _id: req.params.id,
+      doctor: req.user._id,
+    }).populate({
+      path: 'patient',
+      select: 'name email phone profilePicture',
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ message: 'Appointment not found' });
+    }
+
+    if (appointment.status === 'completed') {
+      return res.status(400).json({ message: 'Completed appointments cannot be cancelled' });
+    }
+
+    if (appointment.status === 'cancelled') {
+      return res.json({ message: 'Appointment is already cancelled', appointment });
+    }
+
+    appointment.status = 'cancelled';
+    appointment.cancellationReason = reason;
+    if (appointment.paymentStatus === 'paid') {
+      appointment.paymentStatus = 'refunded';
+    }
+
+    const updatedAppointment = await appointment.save();
+    const dateLabel = appointment.date ? new Date(appointment.date).toLocaleDateString() : 'your appointment day';
+
+    const patientUserId = updatedAppointment.patient?._id || updatedAppointment.patient;
+    await clearAppointmentNotifications([updatedAppointment._id]);
+
+    if (updatedAppointment.paymentStatus === 'refunded') {
+      await queueAppointmentRefunded({
+        patientUserId,
+        appointmentId: updatedAppointment._id,
+        doctorName: req.user.name || updatedAppointment.doctorName || 'Doctor',
+        dateLabel,
+        timeSlot: updatedAppointment.timeSlot,
+        reason,
+      });
+    } else {
+      await queueAppointmentCancellation({
+        patientUserId,
+        appointmentId: updatedAppointment._id,
+        doctorName: req.user.name || updatedAppointment.doctorName || 'Doctor',
+        dateLabel,
+        timeSlot: updatedAppointment.timeSlot,
+      });
+    }
+
+    res.json({
+      message: updatedAppointment.paymentStatus === 'refunded'
+        ? 'Appointment cancelled and refund initiated'
+        : 'Appointment cancelled',
+      appointment: updatedAppointment,
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

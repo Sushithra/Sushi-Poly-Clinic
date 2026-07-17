@@ -7,6 +7,7 @@ import uploadRoutes from "./upload.routes.js";
 import aiRoutes from "./ai.routes.js";
 import productRoutes from "./product.routes.js";
 import paymentRoutes from "./payment.routes.js";
+import patientRecordRoutes from "./patientRecord.routes.js";
 
 const router = Router();
 
@@ -15,6 +16,7 @@ router.use("/doctors", doctorRoutes);
 router.use("/appointments", appointmentRoutes);
 router.use("/notifications", notificationRoutes);
 router.use("/upload", uploadRoutes);
+router.use("/patient-records", patientRecordRoutes);
 router.use("/ai", aiRoutes);
 router.use("/products", productRoutes);
 router.use("/", paymentRoutes);

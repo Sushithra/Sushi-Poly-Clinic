@@ -8,6 +8,7 @@ export default function AppointmentBooking() {
   const [date, setDate] = useState('');
   const [timeSlot, setTimeSlot] = useState('');
   const [complaint, setComplaint] = useState('');
+  const [consultationType, setConsultationType] = useState('video');
   const [loading, setLoading] = useState(false);
   const [fetchingDoctors, setFetchingDoctors] = useState(true);
   const [error, setError] = useState('');
@@ -87,12 +88,14 @@ export default function AppointmentBooking() {
   );
 
   const displayDoctorName = selectedDoctorInfo?.name || 'Doctor';
+  const pricingKey = selectedDoctorInfo?.specializations?.[0] || selectedDoctorInfo?.specialty || 'General';
+  const pricing = selectedDoctorInfo?.consultationPricing?.[pricingKey] || selectedDoctorInfo?.consultationPricing?.General || {};
   const displaySpecialty =
     selectedDoctorInfo?.specialtyLabel ||
     selectedDoctorInfo?.specialty ||
     specialty ||
     'General Physician';
-  const displayFee = selectedDoctorInfo?.consultationFee ?? 500;
+  const displayFee = Number(pricing?.[consultationType] ?? selectedDoctorInfo?.consultationFee ?? 500);
 
   const handleBooking = async (e) => {
     e.preventDefault();
@@ -124,14 +127,15 @@ export default function AppointmentBooking() {
 
       const { data } = await axios.post(
         'http://localhost:5000/api/appointments',
-        {
+          {
           doctorId: selectedDoctor,
           doctorName: displayDoctorName,
-          doctorSpecialty: displaySpecialty,
+          doctorSpecialty: pricingKey,
           date,
           timeSlot,
           complaint,
-          specialty,
+          consultationType,
+          specialty: pricingKey,
         },
         config,
       );
@@ -226,6 +230,23 @@ export default function AppointmentBooking() {
               className="w-full p-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 outline-none transition min-h-[100px]"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-semibold text-neutral-900 mb-2">Consultation Type *</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {['voice', 'video'].map((type) => (
+                <button
+                  type="button"
+                  key={type}
+                  onClick={() => setConsultationType(type)}
+                  className={`rounded-xl border p-4 text-left transition ${consultationType === type ? 'border-primary-600 bg-primary-50' : 'border-neutral-200 bg-white'}`}
+                >
+                  <div className="font-semibold capitalize text-neutral-900">{type}</div>
+                  <div className="text-sm text-neutral-600">₹{Number(pricing?.[type] ?? selectedDoctorInfo?.consultationFee ?? 500)}</div>
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { API_BASE_URL } from '../../config/env.js';
 
 const loadRazorpayScript = () =>
   new Promise((resolve) => {
@@ -44,7 +45,7 @@ const parseTimeSlot = (timeSlot) => {
   return { hours, minutes };
 };
 
-const getConsultationWindow = (dateValue, timeSlot, openBeforeMinutes = 1, closeAfterMinutes = 240, nowTimestamp = Date.now()) => {
+const getConsultationWindow = (dateValue, timeSlot, openBeforeMinutes = 0, closeAfterMinutes = 240, nowTimestamp = Date.now()) => {
   const date = new Date(dateValue);
   const timeParts = parseTimeSlot(timeSlot);
 
@@ -63,15 +64,26 @@ const getConsultationWindow = (dateValue, timeSlot, openBeforeMinutes = 1, close
 };
 
 const getRazorpayPublicKey = () => import.meta.env.VITE_RAZORPAY_KEY_ID || '';
+const resolveRecordUrl = (value) => {
+  const url = String(value || '');
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return `${API_BASE_URL}/${url.replace(/^\/+/, '')}`;
+};
 
 export default function PatientDashboard() {
   const [appointments, setAppointments] = useState([]);
-  const [activeTab, setActiveTab] = useState('pending');
+  const [patientRecords, setPatientRecords] = useState([]);
+  const [activeTab, setActiveTab] = useState('current');
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentTarget, setPaymentTarget] = useState(null);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [paymentError, setPaymentError] = useState('');
   const [paymentNotice, setPaymentNotice] = useState('');
+  const [recordFile, setRecordFile] = useState(null);
+  const [recordUploadLoading, setRecordUploadLoading] = useState(false);
+  const [recordError, setRecordError] = useState('');
+  const [previewRecord, setPreviewRecord] = useState(null);
   const [razorpayReady, setRazorpayReady] = useState(false);
   const [now, setNow] = useState(Date.now());
   const navigate = useNavigate();
@@ -81,7 +93,7 @@ export default function PatientDashboard() {
 
   useEffect(() => {
     if (location.state?.activeTab) {
-      setActiveTab(location.state.activeTab);
+      setActiveTab(location.state.activeTab === 'pending' ? 'current' : location.state.activeTab);
     }
   }, [location.state]);
 
@@ -150,6 +162,22 @@ export default function PatientDashboard() {
     };
   }, [navigate, userInfo, location.state]);
 
+  useEffect(() => {
+    if (!userInfo?.token) return;
+
+    const fetchPatientRecords = async () => {
+      try {
+        const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+        const { data } = await axios.get('http://localhost:5000/api/patient-records/me', config);
+        setPatientRecords(Array.isArray(data) ? data : []);
+      } catch (error) {
+        setRecordError(error.response?.data?.message || 'Failed to load records');
+      }
+    };
+
+    fetchPatientRecords();
+  }, [userInfo]);
+
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
     navigate('/login');
@@ -157,33 +185,27 @@ export default function PatientDashboard() {
 
   // Classify appointments into tabs
   const classifyAppointments = () => {
-    const pending = [];
     const current = [];
     const previous = [];
 
     appointments.forEach((app) => {
-      if (app.status === 'pending' || app.status === 'requested') {
-        pending.push(app);
-      } else if (app.status === 'confirmed' || app.status === 'current') {
-        current.push(app);
-      } else if (app.status === 'completed' || app.status === 'cancelled') {
+      if (app.status === 'completed' || app.status === 'cancelled') {
         previous.push(app);
+      } else {
+        current.push(app);
       }
     });
 
-    return { pending, current, previous };
+    return { current, previous };
   };
 
-  const { pending, current, previous } = classifyAppointments();
+  const { current, previous } = classifyAppointments();
 
   const getTabContent = () => {
     let tabData = [];
     let emptyMessage = '';
 
-    if (activeTab === 'pending') {
-      tabData = pending;
-      emptyMessage = 'No pending appointments.';
-    } else if (activeTab === 'current') {
+    if (activeTab === 'current') {
       tabData = current;
       emptyMessage = 'No current appointments.';
     } else if (activeTab === 'previous') {
@@ -206,6 +228,50 @@ export default function PatientDashboard() {
     setPaymentError('');
     setPaymentNotice('');
     setPaymentModalOpen(true);
+  };
+
+  const handleRecordUpload = async (e) => {
+    e.preventDefault();
+    if (!recordFile) {
+      setRecordError('Please choose a photo or PDF first.');
+      return;
+    }
+
+    try {
+      setRecordUploadLoading(true);
+      setRecordError('');
+      const formData = new FormData();
+      formData.append('file', recordFile);
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      };
+      const { data } = await axios.post('http://localhost:5000/api/patient-records', formData, config);
+      setPatientRecords((current) => [data, ...current]);
+      setRecordFile(null);
+      e.target.reset();
+    } catch (error) {
+      setRecordError(error.response?.data?.message || 'Unable to upload record');
+    } finally {
+      setRecordUploadLoading(false);
+    }
+  };
+
+  const handleDeleteRecord = async (recordId) => {
+    if (!window.confirm('Delete this record?')) return;
+
+    try {
+      const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
+      await axios.delete(`http://localhost:5000/api/patient-records/${recordId}`, config);
+      setPatientRecords((current) => current.filter((record) => record._id !== recordId));
+      if (previewRecord?._id === recordId) {
+        setPreviewRecord(null);
+      }
+    } catch (error) {
+      setRecordError(error.response?.data?.message || 'Unable to delete record');
+    }
   };
 
   const closePaymentModal = () => {
@@ -239,7 +305,7 @@ export default function PatientDashboard() {
       setPaymentError('');
       const token = userInfo?.token;
       const config = { headers: { Authorization: `Bearer ${token}` } };
-      const fee = Number(paymentTarget.doctor?.consultationFee ?? 500);
+      const fee = Number(paymentTarget.consultationPrice ?? paymentTarget.doctor?.consultationFee ?? 500);
       const amount = Math.max(100, Math.round(fee * 100));
 
       const { data: orderData } = await axios.post(
@@ -300,12 +366,12 @@ export default function PatientDashboard() {
   };
 
   const canJoinAppointment = (app) => {
-    if (!app || app.paymentStatus !== 'paid' || app.status === 'cancelled') {
+    if (!app || app.paymentStatus !== 'paid' || app.status === 'cancelled' || app.status === 'completed') {
       return false;
     }
 
-    const windowInfo = getConsultationWindow(app.date, app.timeSlot, 1, 240, now);
-    return windowInfo.canJoinNow;
+    const windowInfo = getConsultationWindow(app.date, app.timeSlot, 0, 240, now);
+    return Boolean(windowInfo.startsAt && now >= windowInfo.startsAt.getTime());
   };
 
   if (!userInfo) return null;
@@ -343,24 +409,7 @@ export default function PatientDashboard() {
           </div>
 
           {/* 3 Big Sections */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {/* Pending */}
-            <div
-              onClick={() => setActiveTab('pending')}
-              className={`cursor-pointer p-8 rounded-2xl border-2 transition transform hover:scale-105 ${
-                activeTab === 'pending'
-                  ? 'bg-yellow-50 border-yellow-400 shadow-lg'
-                  : 'bg-white border-neutral-200 hover:border-yellow-200'
-              }`}
-            >
-              <div className="text-center">
-                <h3 className="text-5xl font-bold text-neutral-900 mb-2">{pending.length}</h3>
-                <p className="text-lg font-semibold text-neutral-700 mb-4">Pending</p>
-                <p className="text-sm text-neutral-500">Awaiting doctor confirmation</p>
-              </div>
-            </div>
-
-            {/* Current */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             <div
               onClick={() => setActiveTab('current')}
               className={`cursor-pointer p-8 rounded-2xl border-2 transition transform hover:scale-105 ${
@@ -397,7 +446,7 @@ export default function PatientDashboard() {
           <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 p-8">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
               <h3 className="text-xl font-bold text-neutral-900">
-                {activeTab === 'pending' ? 'Pending Appointments' : activeTab === 'current' ? 'Current Appointments' : 'Previous Appointments'}
+                {activeTab === 'current' ? 'Current Appointments' : 'Previous Appointments'}
               </h3>
               <button
                 onClick={() => navigate('/doctors')}
@@ -428,26 +477,38 @@ export default function PatientDashboard() {
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-neutral-900">{app.doctorName || app.doctor?.name || 'Doctor'}</h4>
                         <p className="text-sm text-neutral-600">{app.doctorSpecialty || app.doctor?.specialty || 'Specialist'}</p>
-                        <p className="text-sm text-neutral-500">{new Date(app.date).toLocaleDateString()} at {app.timeSlot}</p>
+                        <p className="text-sm text-neutral-500">{new Date(app.date).toLocaleDateString()} at {app.timeSlot} • {app.consultationType || 'video'}</p>
                       </div>
                       <div className="text-right ml-4 flex flex-col items-end gap-2">
                         <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                          app.paymentStatus === 'paid'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-yellow-100 text-yellow-700'
+                          app.status === 'completed'
+                            ? 'bg-violet-100 text-violet-700'
+                            : app.paymentStatus === 'paid'
+                              ? 'bg-green-100 text-green-700'
+                              : 'bg-yellow-100 text-yellow-700'
                         }`}>
-                          {app.paymentStatus === 'paid' ? 'Paid' : 'Payment pending'}
+                          {app.status === 'completed'
+                            ? 'Completed'
+                            : app.paymentStatus === 'paid'
+                              ? 'Paid'
+                              : app.status === 'pending' || app.status === 'requested'
+                                ? 'Waiting for confirmation'
+                                : 'Payment pending'}
                         </span>
                         {app.status === 'cancelled' ? (
                           <span className="px-4 py-2 text-sm font-semibold rounded-xl bg-red-100 text-red-700">
                             Cancelled
+                          </span>
+                        ) : app.status === 'completed' ? (
+                          <span className="px-4 py-2 text-sm font-semibold rounded-xl bg-violet-100 text-violet-700">
+                            Completed
                           </span>
                         ) : canJoinAppointment(app) ? (
                           <button
                             onClick={() => openConsultation(app._id)}
                             className="px-4 py-2 text-sm font-semibold rounded-xl bg-primary-600 text-white hover:bg-primary-700"
                           >
-                            Open consultation
+                            Join meeting
                           </button>
                         ) : app.paymentStatus === 'paid' ? (
                           <span className="px-4 py-2 text-sm font-semibold rounded-xl bg-sky-100 text-sky-700">
@@ -467,20 +528,134 @@ export default function PatientDashboard() {
                         )}
                       </div>
                     </div>
-                    {app.status === 'cancelled' && app.cancellationReason && (
-                      <div className="mt-3 ml-16 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
-                        {app.cancellationReason}
-                      </div>
-                    )}
-                  </React.Fragment>
-                ))}
+                        {app.status === 'cancelled' && app.cancellationReason && (
+                          <div className="mt-3 ml-16 text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
+                            {app.cancellationReason}
+                          </div>
+                        )}
+                        {app.status === 'cancelled' && app.paymentStatus === 'refunded' && (
+                          <div className="mt-2 ml-16 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-2">
+                            Refund initiated for this appointment.
+                          </div>
+                        )}
+                      </React.Fragment>
+                    ))}
               </div>
             )}
           </div>
         </div>
-      </div>
+          </div>
 
-      {paymentModalOpen && paymentTarget && (
+          <div className="mt-8 bg-white rounded-2xl shadow-sm border border-neutral-200 p-8">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+              <div>
+                <h3 className="text-xl font-bold text-neutral-900">My Records</h3>
+                <p className="text-neutral-600 text-sm">Upload photos or PDFs that your doctor can view after a completed meeting.</p>
+              </div>
+              <span className="px-3 py-1 rounded-full bg-sky-100 text-sky-700 text-sm font-semibold">
+                {patientRecords.length} files
+              </span>
+            </div>
+
+            <form onSubmit={handleRecordUpload} className="grid gap-4 md:grid-cols-[1fr_auto]">
+              <input
+                type="file"
+                accept="image/*,application/pdf"
+                onChange={(e) => setRecordFile(e.target.files?.[0] || null)}
+                className="block w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-sm"
+              />
+              <button
+                type="submit"
+                disabled={recordUploadLoading}
+                className="rounded-xl bg-primary-600 px-5 py-3 font-semibold text-white hover:bg-primary-700 disabled:opacity-60"
+              >
+                {recordUploadLoading ? 'Uploading...' : 'Upload Record'}
+              </button>
+            </form>
+
+            {recordError && (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                {recordError}
+              </div>
+            )}
+
+            <div className="mt-6 space-y-3">
+              {patientRecords.length === 0 ? (
+                <p className="text-sm text-neutral-500">No records uploaded yet.</p>
+              ) : (
+                patientRecords.map((record) => (
+                  <div
+                    key={record._id}
+                    className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewRecord(record)}
+                        className="text-left"
+                      >
+                        <p className="font-semibold text-neutral-900">{record.title}</p>
+                        <p className="text-xs text-neutral-500">{new Date(record.createdAt).toLocaleDateString()}</p>
+                        <p className="text-xs text-primary-600 mt-1">View record</p>
+                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewRecord(record)}
+                          className="rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
+                        >
+                          View
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteRecord(record._id)}
+                          className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-100"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {previewRecord && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4">
+              <div className="w-full max-w-4xl rounded-3xl bg-white p-4 shadow-2xl">
+                <div className="mb-3 flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-bold text-neutral-900">{previewRecord.title}</h3>
+                    <p className="text-sm text-neutral-500">{previewRecord.fileName || previewRecord.title}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewRecord(null)}
+                    className="rounded-full px-3 py-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
+                    aria-label="Close preview"
+                  >
+                    ×
+                  </button>
+                </div>
+                {previewRecord.mimeType?.includes('pdf') ? (
+                  <iframe
+                    title={previewRecord.title}
+                    src={resolveRecordUrl(previewRecord.fileUrl)}
+                    className="h-[75vh] w-full rounded-2xl border border-neutral-200"
+                  />
+                ) : (
+                  <img
+                    src={resolveRecordUrl(previewRecord.fileUrl)}
+                    alt={previewRecord.title}
+                    className="max-h-[75vh] w-full rounded-2xl object-contain bg-neutral-100"
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {paymentModalOpen && paymentTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
           <div className="w-full max-w-2xl rounded-3xl bg-white p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4">
@@ -503,7 +678,7 @@ export default function PatientDashboard() {
             <div className="mt-6 rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
               <div className="flex items-center justify-between gap-4">
                 <span className="text-sm text-neutral-600">Consultation fee</span>
-                <span className="text-2xl font-bold text-neutral-900">₹{paymentTarget.doctor?.consultationFee ?? 500}</span>
+                <span className="text-2xl font-bold text-neutral-900">₹{paymentTarget.consultationPrice ?? paymentTarget.doctor?.consultationFee ?? 500}</span>
               </div>
               <p className="mt-3 text-sm text-neutral-500">
                 After payment, you will return to this home screen. When it is time for your appointment, a join button will appear here.

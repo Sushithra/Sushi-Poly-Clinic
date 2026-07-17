@@ -47,6 +47,7 @@ export default function ProfilePage() {
     age: '',
     phone: '',
     specializations: [],
+    consultationPricing: {},
     currentPassword: '',
     newPassword: '',
   });
@@ -69,6 +70,7 @@ export default function ProfilePage() {
           age: data.age ?? '',
           phone: data.phone || '',
           specializations: Array.isArray(data.specializations) ? data.specializations : [],
+          consultationPricing: data.consultationPricing || {},
           currentPassword: '',
           newPassword: '',
         });
@@ -94,6 +96,19 @@ export default function ProfilePage() {
     }));
   };
 
+  const updatePricing = (specialty, type, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      consultationPricing: {
+        ...prev.consultationPricing,
+        [specialty]: {
+          ...(prev.consultationPricing?.[specialty] || {}),
+          [type]: value,
+        },
+      },
+    }));
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -104,6 +119,7 @@ export default function ProfilePage() {
       const payload = {
         name: formData.name,
         specializations: isDoctor ? formData.specializations : undefined,
+        consultationPricing: isDoctor ? formData.consultationPricing : undefined,
         age: !isDoctor ? formData.age : undefined,
         phone: !isDoctor ? formData.phone : undefined,
         newPassword: formData.newPassword || undefined,
@@ -293,6 +309,32 @@ export default function ProfilePage() {
                   >
                     <div className="font-semibold">{category}</div>
                   </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {isDoctor && (
+            <div>
+              <label className="block text-sm font-medium text-neutral-700 mb-3">Consultation Pricing</label>
+              <div className="space-y-4">
+                {(formData.specializations.length ? formData.specializations : ['General']).map((specialty) => (
+                  <div key={specialty} className="rounded-2xl border border-neutral-200 p-4 bg-neutral-50">
+                    <p className="font-semibold text-neutral-900 mb-3">{specialty}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {['voice', 'video'].map((type) => (
+                        <input
+                          key={type}
+                          type="number"
+                          min="0"
+                          value={formData.consultationPricing?.[specialty]?.[type] ?? ''}
+                          onChange={(e) => updatePricing(specialty, type, e.target.value)}
+                          placeholder={`${type} price`}
+                          className="w-full p-3 border border-neutral-300 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none"
+                        />
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             </div>

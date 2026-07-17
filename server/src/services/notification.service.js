@@ -1,5 +1,6 @@
 import Notification from '../models/Notification.model.js';
 import Appointment from '../models/Appointment.js';
+import { sendPushToUser } from './pushNotification.service.js';
 
 const buildNotificationKey = ({ user, appointment, type, scheduledFor }) => ({
   user,
@@ -97,6 +98,15 @@ export const queueAppointmentCancellation = async ({ patientUserId, appointmentI
     message: `Your appointment with ${doctorName} on ${dateLabel} at ${timeSlot} is no longer available.`,
   });
 
+export const queueAppointmentRefunded = async ({ patientUserId, appointmentId, doctorName, dateLabel, timeSlot, reason }) =>
+  createNotification({
+    user: patientUserId,
+    appointment: appointmentId,
+    type: 'appointment_refunded',
+    title: 'Appointment cancelled and refunded',
+    message: `Your appointment with ${doctorName} on ${dateLabel} at ${timeSlot} was cancelled. Refund has been initiated. Reason: ${reason || 'No reason provided'}.`,
+  });
+
 export const deliverQueuedNotifications = async () => {
   const now = new Date();
   const pending = await Notification.find({
@@ -117,6 +127,21 @@ export const deliverQueuedNotifications = async () => {
         sentAt: now,
       },
     },
+  );
+
+  await Promise.allSettled(
+    pending.map((notification) =>
+      sendPushToUser({
+        userId: notification.user,
+        title: notification.title,
+        body: notification.message,
+        data: {
+          notificationId: notification._id,
+          appointmentId: notification.appointment || '',
+          type: notification.type,
+        },
+      }),
+    ),
   );
 
   return ids.length;

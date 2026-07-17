@@ -42,6 +42,12 @@ const matchesCategory = (doctor, category) => {
   return true;
 };
 
+const getConsultationPrice = (doctor, consultationType = 'video') => {
+  const specialtyKey = doctor?.specializations?.[0] || doctor?.specialty || 'General';
+  const pricing = doctor?.consultationPricing?.[specialtyKey] || doctor?.consultationPricing?.General || {};
+  return Number(pricing?.[consultationType] ?? doctor?.consultationFee ?? 500);
+};
+
 export default function DoctorsPage() {
   const navigate = useNavigate();
   const [doctors, setDoctors] = useState([]);
@@ -160,7 +166,7 @@ export default function DoctorsPage() {
                           </p>
                           <div className="flex flex-wrap items-center gap-2 mt-2 text-sm text-neutral-500">
                             <span>★ {doctor.rating ?? 4.8}</span>
-                            <span>₹{doctor.consultationFee ?? 500}</span>
+                            <span>From ₹{getConsultationPrice(doctor, 'voice')}</span>
                             {doctor.specializations?.length > 0 && (
                               <span className="px-2 py-1 bg-white rounded-full border border-neutral-200">
                                 {doctor.specializations.join(', ')}

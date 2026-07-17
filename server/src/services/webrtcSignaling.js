@@ -4,9 +4,7 @@ import Appointment from '../models/Appointment.js';
 import User from '../models/User.js';
 import { getConsultationWindow, parseAppointmentDateTime } from './appointmentTiming.js';
 
-const CONSULTATION_WINDOW_BEFORE_MINUTES = 1;
-const CONSULTATION_WINDOW_AFTER_MINUTES = 240;
-
+const CONSULTATION_WINDOW_BEFORE_MINUTES = 0;
 const toIdString = (value) => {
   if (!value) return '';
   if (typeof value === 'string') return value;
@@ -114,17 +112,17 @@ export const registerWebrtcSignaling = (httpServer) => {
         }
 
         const appointmentDateTime = parseAppointmentDateTime(appointment.date, appointment.timeSlot);
-        const { startsAt, endsAt } = getConsultationWindow(
+        const { startsAt } = getConsultationWindow(
           appointmentDateTime,
           CONSULTATION_WINDOW_BEFORE_MINUTES,
-          CONSULTATION_WINDOW_AFTER_MINUTES,
         );
         const now = new Date();
         if (startsAt && now.getTime() < startsAt.getTime()) {
           throw new Error('The consultation window is not open yet');
         }
-        if (endsAt && now.getTime() > endsAt.getTime()) {
-          throw new Error('The consultation window has ended');
+
+        if (appointment.status === 'completed') {
+          throw new Error('The consultation has ended');
         }
 
         if (!isAppointmentParticipant(appointment, socket.data.user?._id)) {

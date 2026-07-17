@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton.jsx';
 import { API_BASE_URL, IS_BACKEND_URL_DEFAULTED } from '../../config/env.js';
+import { registerPushToken } from '../../services/pushNotifications.js';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -29,6 +30,7 @@ export default function LoginPage() {
         return;
       }
       localStorage.setItem('userInfo', JSON.stringify(data));
+      registerPushToken(data).catch(() => {});
       navigate('/patient/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to login');
@@ -60,6 +62,7 @@ export default function LoginPage() {
       }
 
       localStorage.setItem('userInfo', JSON.stringify(data));
+      registerPushToken(data).catch(() => {});
       navigate('/patient/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Google sign-in failed');

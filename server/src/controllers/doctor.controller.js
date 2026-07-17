@@ -25,6 +25,7 @@ const buildDoctorCard = (record) => {
     specialtyLabel: specializations.length > 0 ? specializations.join(', ') : specialty,
     experienceYears: record.experienceYears ?? 0,
     consultationFee: record.consultationFee ?? 500,
+    consultationPricing: record.consultationPricing || {},
     rating: record.rating ?? 4.8,
     isApproved: record.isApproved ?? true,
     available: record.available ?? true,

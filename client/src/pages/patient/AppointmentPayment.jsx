@@ -115,8 +115,7 @@ export default function AppointmentPayment() {
         return;
       }
 
-      const consultationFee = Number(appointment?.doctor?.consultationFee ?? 500);
-      const amount = Math.max(100, Math.round(consultationFee * 100));
+      const amount = Math.max(100, Math.round(Number(appointment?.consultationPrice ?? appointment?.doctor?.consultationFee ?? 500) * 100));
       const config = { headers: { Authorization: `Bearer ${session.token}` } };
 
       const { data: orderData } = await axios.post(
@@ -216,7 +215,7 @@ export default function AppointmentPayment() {
 
                 <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/40 p-5">
                   <h2 className="text-xl font-semibold">{appointment.doctorName || appointment.doctor?.name || 'Doctor'}</h2>
-                  <p className="mt-1 text-slate-300">{appointment.doctorSpecialty || 'General Physician'}</p>
+                  <p className="mt-1 text-slate-300">{appointment.doctorSpecialty || 'General Physician'} • {appointment.consultationType || 'video'}</p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl bg-white/5 p-4">
                       <p className="text-xs uppercase tracking-wide text-slate-400">Appointment time</p>
@@ -224,7 +223,7 @@ export default function AppointmentPayment() {
                     </div>
                     <div className="rounded-2xl bg-white/5 p-4">
                       <p className="text-xs uppercase tracking-wide text-slate-400">Consultation fee</p>
-                      <p className="mt-1 text-white font-semibold">Rs. {appointment.doctor?.consultationFee ?? 500}</p>
+                      <p className="mt-1 text-white font-semibold">Rs. {appointment.consultationPrice ?? appointment.doctor?.consultationFee ?? 500}</p>
                     </div>
                   </div>
                 </div>

@@ -7,6 +7,8 @@ import {
   getAppointmentById,
   completeAppointmentPayment,
   getConsultationAccess,
+  completeAppointment,
+  cancelAppointment,
 } from '../controllers/appointment.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
@@ -19,5 +21,7 @@ router.get('/:id', protect, getAppointmentById);
 router.post('/:id/pay', protect, completeAppointmentPayment);
 router.get('/:id/consultation-access', protect, getConsultationAccess);
 router.patch('/:id/confirm', protect, confirmAppointment);
+router.patch('/:id/complete', protect, completeAppointment);
+router.patch('/:id/cancel', protect, cancelAppointment);
 
 export default router;

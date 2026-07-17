@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import Appointment from '../models/Appointment.js';
 import { getConsultationWindow, parseAppointmentDateTime } from '../services/appointmentTiming.js';
 
-const CONSULTATION_WINDOW_BEFORE_MINUTES = 1;
+const CONSULTATION_WINDOW_BEFORE_MINUTES = 0;
 const CONSULTATION_WINDOW_AFTER_MINUTES = 240;
 
 const getRazorpayClient = () => {
@@ -60,6 +60,8 @@ const buildConsultationResponse = (appointment) => {
     consultationProvider: appointment.consultationProvider || 'webrtc',
     consultationRoomName: roomName,
     consultationJoinUrl: '',
+    consultationType: appointment.consultationType || 'video',
+    consultationPrice: appointment.consultationPrice || appointment.doctor?.consultationFee || 500,
     startsAt,
     endsAt,
     canJoin,

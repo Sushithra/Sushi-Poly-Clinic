@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton.jsx';
 import { API_BASE_URL, IS_BACKEND_URL_DEFAULTED } from '../../config/env.js';
+import { registerPushToken } from '../../services/pushNotifications.js';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -26,6 +27,7 @@ export default function RegisterPage() {
     try {
       const { data } = await axios.post('http://localhost:5000/api/auth/register', { name, email, password, role: 'patient' });
       localStorage.setItem('userInfo', JSON.stringify(data));
+      registerPushToken(data).catch(() => {});
       navigate('/patient/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to register');
@@ -52,6 +54,7 @@ export default function RegisterPage() {
       });
 
       localStorage.setItem('userInfo', JSON.stringify(data));
+      registerPushToken(data).catch(() => {});
       navigate('/patient/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Google sign-up failed');

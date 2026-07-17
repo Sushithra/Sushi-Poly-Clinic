@@ -93,6 +93,8 @@ export default function ConsultationRoom() {
     !isDoctorSession &&
     (appointment?.status === 'confirmed' || appointment?.status === 'current');
   const canJoin = Boolean(consultation?.canJoin);
+  const isCompleted = appointment?.status === 'completed';
+  const isVoiceConsultation = (appointment?.consultationType || consultation?.consultationType) === 'voice';
 
   const cleanupMeeting = () => {
     offerCreatedRef.current = false;
@@ -221,7 +223,7 @@ export default function ConsultationRoom() {
       }
 
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: !isVoiceConsultation,
         audio: true,
       });
 
@@ -364,6 +366,21 @@ export default function ConsultationRoom() {
     setIsVideoOff(!track.enabled);
   };
 
+  const markConsultationDone = async () => {
+    if (!isDoctorSession || !session?.token || !appointmentId) {
+      return;
+    }
+
+    try {
+      setError('');
+      const config = { headers: { Authorization: `Bearer ${session.token}` } };
+      await axios.patch(`http://localhost:5000/api/appointments/${appointmentId}/complete`, {}, config);
+      navigate('/doctor/dashboard');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to mark consultation as done');
+    }
+  };
+
   if (!session) {
     return null;
   }
@@ -378,7 +395,7 @@ export default function ConsultationRoom() {
           </h1>
           {appointment && (
             <p className="mt-2 text-sm text-slate-300">
-              {new Date(appointment.date).toLocaleDateString()} at {appointment.timeSlot}
+              {new Date(appointment.date).toLocaleDateString()} at {appointment.timeSlot} • {appointment.consultationType || 'video'} call
             </p>
           )}
         </div>
@@ -413,7 +430,16 @@ export default function ConsultationRoom() {
           <div className="mt-6 rounded-3xl border border-sky-400/20 bg-sky-500/10 p-6 text-sky-50">
             <h2 className="text-lg font-semibold">Waiting room</h2>
             <p className="mt-2 text-sm text-sky-100/90">
-              The room opens at {consultation.startsAt ? new Date(consultation.startsAt).toLocaleString() : 'the scheduled time'}.
+              The room opens at {consultation.startsAt ? new Date(consultation.startsAt).toLocaleString() : 'the scheduled time'} and will stay open after the appointment starts until the doctor marks it done.
+            </p>
+          </div>
+        )}
+
+        {!loading && consultation && isCompleted && (
+          <div className="mt-6 rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6 text-violet-50">
+            <h2 className="text-lg font-semibold">Consultation completed</h2>
+            <p className="mt-2 text-sm text-violet-100/90">
+              This appointment has been marked as done by the doctor.
             </p>
           </div>
         )}
@@ -442,7 +468,12 @@ export default function ConsultationRoom() {
             <div className="mt-4 space-y-2 text-sm text-slate-300">
               <p>Room: {consultation?.consultationRoomName || 'Not generated yet'}</p>
               <p>Payment: {appointment?.paymentStatus || consultation?.paymentStatus || 'pending'}</p>
-              <p>Join window: {consultation?.startsAt ? `${new Date(consultation.startsAt).toLocaleString()} - ${new Date(consultation.endsAt).toLocaleString()}` : 'Pending'}</p>
+              <p>
+                Join window:{' '}
+                {consultation?.startsAt
+                  ? `${new Date(consultation.startsAt).toLocaleString()} onward until the doctor marks it done`
+                  : 'Pending'}
+              </p>
               <p>Participants: {participantCount || 0}</p>
               <p>Status: {meetingStatus}</p>
             </div>
@@ -451,11 +482,11 @@ export default function ConsultationRoom() {
           <section className="rounded-3xl border border-white/10 bg-black p-4">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-3">
-                <p className="mb-2 text-xs uppercase tracking-[0.3em] text-cyan-300">Local camera</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.3em] text-cyan-300">{isVoiceConsultation ? 'Local audio' : 'Local camera'}</p>
                 <video ref={localVideoRef} autoPlay playsInline muted className="h-[34vh] w-full rounded-xl bg-black object-cover" />
               </div>
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-3">
-                <p className="mb-2 text-xs uppercase tracking-[0.3em] text-cyan-300">Remote camera</p>
+                <p className="mb-2 text-xs uppercase tracking-[0.3em] text-cyan-300">{isVoiceConsultation ? 'Remote audio' : 'Remote camera'}</p>
                 <video ref={remoteVideoRef} autoPlay playsInline className="h-[34vh] w-full rounded-xl bg-black object-cover" />
               </div>
             </div>
@@ -471,19 +502,27 @@ export default function ConsultationRoom() {
               <button
                 onClick={toggleVideo}
                 className="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-                disabled={!localStreamRef.current}
+                disabled={!localStreamRef.current || isVoiceConsultation}
               >
                 {isVideoOff ? 'Start video' : 'Stop video'}
               </button>
               <button
                 onClick={() => {
                   cleanupMeeting();
-                  navigate('/patient/dashboard');
+                  navigate(isDoctorSession ? '/doctor/dashboard' : '/patient/dashboard');
                 }}
                 className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-400"
               >
                 Leave room
               </button>
+              {isDoctorSession && appointment?.status !== 'completed' && appointment?.paymentStatus === 'paid' && (
+                <button
+                  onClick={markConsultationDone}
+                  className="rounded-2xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500"
+                >
+                  Mark as done
+                </button>
+              )}
             </div>
 
             {!canJoin && !consultation?.paymentDue && !loading && (
@@ -494,7 +533,7 @@ export default function ConsultationRoom() {
 
             {canJoin && meetingStatus !== 'connected' && (
               <div className="mt-4 rounded-2xl bg-slate-950 p-4 text-center text-sm text-slate-300">
-                Press Join meeting to start the camera and connect to the other side.
+                Press Join meeting to start the camera and connect to the other side. If the meeting time has passed, the join button will still stay available until both sides finish.
               </div>
             )}
           </section>

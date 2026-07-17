@@ -52,11 +52,13 @@ const buildUserResponse = (user) => {
     googleId: user.googleId,
     age: user.age ?? null,
     specializations: user.specializations,
+    consultationPricing: user.consultationPricing || {},
     experienceYears: user.experienceYears,
     consultationFee: user.consultationFee,
     isApproved: user.isApproved,
     accountStatus: user.accountStatus,
     phone: user.phone,
+    hasPushTokens: Array.isArray(user.pushTokens) && user.pushTokens.length > 0,
     ...profileState,
     token: generateToken(user._id),
   };
@@ -81,6 +83,7 @@ const syncDoctorRecord = async (user, extra = {}) => {
     specialty,
     experienceYears: Number(extra.experienceYears ?? user.experienceYears ?? 0),
     consultationFee: Number(extra.consultationFee ?? user.consultationFee ?? 500),
+    consultationPricing: extra.consultationPricing ?? user.consultationPricing ?? {},
     isApproved: extra.isApproved ?? user.isApproved ?? true,
   };
 
@@ -105,6 +108,7 @@ export const registerUser = async (req, res) => {
       emailVerified = false,
       age,
       specializations = [],
+      consultationPricing = {},
       experienceYears = 0,
       consultationFee = 500,
       isApproved = true,
@@ -129,6 +133,7 @@ export const registerUser = async (req, res) => {
       emailVerified: Boolean(emailVerified),
       age: age !== undefined && age !== '' ? Number(age) : null,
       specializations: Array.isArray(specializations) ? specializations : [],
+      consultationPricing,
       experienceYears,
       consultationFee,
       isApproved,
@@ -139,6 +144,7 @@ export const registerUser = async (req, res) => {
       if (user.role === 'doctor') {
         await syncDoctorRecord(user, {
           specializations,
+          consultationPricing,
           experienceYears,
           consultationFee,
           isApproved,
@@ -189,6 +195,7 @@ export const googleAuth = async (req, res) => {
       role,
       mode = 'login',
       specializations = [],
+      consultationPricing = {},
       experienceYears = 0,
       consultationFee = 500,
       age,
@@ -248,6 +255,7 @@ export const googleAuth = async (req, res) => {
         age: age !== undefined && age !== '' ? Number(age) : null,
         profilePicture: profilePicture,
         specializations: requestedRole === 'doctor' && Array.isArray(specializations) ? specializations : [],
+        consultationPricing: requestedRole === 'doctor' ? consultationPricing : {},
         experienceYears: requestedRole === 'doctor' ? experienceYears : 0,
         consultationFee: requestedRole === 'doctor' ? consultationFee : 500,
         isApproved: true,
@@ -281,6 +289,7 @@ export const googleAuth = async (req, res) => {
     if (user.role === 'doctor') {
       await syncDoctorRecord(user, {
         specializations,
+        consultationPricing,
         experienceYears,
         consultationFee,
         isApproved: user.isApproved,
@@ -365,6 +374,9 @@ export const updateUserProfile = async (req, res) => {
       if (Array.isArray(specializations)) {
         user.specializations = specializations;
       }
+      if (consultationPricing && typeof consultationPricing === 'object') {
+        user.consultationPricing = consultationPricing;
+      }
       if (experienceYears !== undefined && experienceYears !== '') {
         user.experienceYears = Number(experienceYears);
       }
@@ -391,6 +403,7 @@ export const updateUserProfile = async (req, res) => {
     if (updatedUser.role === 'doctor') {
       await syncDoctorRecord(updatedUser, {
         specializations: updatedUser.specializations,
+        consultationPricing: updatedUser.consultationPricing,
         experienceYears: updatedUser.experienceYears,
         consultationFee: updatedUser.consultationFee,
         isApproved: updatedUser.isApproved,
@@ -469,6 +482,40 @@ export const deleteUserProfile = async (req, res) => {
       Doctor.deleteMany({ userId: user._id }),
     ]);
     res.json({ message: 'Account deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Register a Firebase push token for the current user
+// @route   POST /api/auth/push-token
+// @access  Private
+export const registerPushToken = async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Database is not connected' });
+    }
+
+    const { token } = req.body;
+    if (!token || typeof token !== 'string') {
+      return res.status(400).json({ message: 'Push token is required' });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!Array.isArray(user.pushTokens)) {
+      user.pushTokens = [];
+    }
+
+    if (!user.pushTokens.includes(token)) {
+      user.pushTokens.push(token);
+      await user.save();
+    }
+
+    res.json({ message: 'Push token registered successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

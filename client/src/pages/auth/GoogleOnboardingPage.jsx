@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { registerPushToken } from '../../services/pushNotifications.js';
 
 const doctorCategories = [
   { label: 'General', value: 'General' },
@@ -130,6 +131,7 @@ export default function GoogleOnboardingPage() {
 
       const storageKey = data.role === 'doctor' ? 'doctorInfo' : 'userInfo';
       localStorage.setItem(storageKey, JSON.stringify(data));
+      registerPushToken(data).catch(() => {});
 
       navigate(data.role === 'doctor' ? '/doctor/dashboard' : '/patient/dashboard');
     } catch (err) {

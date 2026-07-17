@@ -4,14 +4,20 @@ dotenv.config();
 import cors from "cors";
 import express from "express";
 import { createServer } from "http";
+import path from "path";
+import { fileURLToPath } from "url";
 import routes from "./routes/index.js";
 import { connectDB } from "./database/db.js";
 import { startNotificationScheduler } from "./services/notification.service.js";
 import { registerWebrtcSignaling } from "./services/webrtcSignaling.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const httpServer = createServer(app);
 const port = Number(process.env.PORT || 5000);
+const uploadsDir = path.resolve(__dirname, '../uploads');
 
 app.use(
   cors({
@@ -20,6 +26,7 @@ app.use(
   }),
 );
 app.use(express.json());
+app.use('/uploads', express.static(uploadsDir));
 
 // Add a friendly root endpoint so visiting localhost:5000 directly doesn't say "Cannot GET /"
 app.get("/", (_request, response) => {
@@ -28,7 +35,7 @@ app.get("/", (_request, response) => {
       <body style="font-family: sans-serif; text-align: center; padding: 50px;">
         <h2>Sushi Poly Clinic API is Running! 🚀</h2>
         <p>This is the backend server. The actual website is running on port 5173.</p>
-        <a href="https://sushi-polyclinic.onrender.com/" style="display: inline-block; padding: 10px 20px; background: #047857; color: white; text-decoration: none; border-radius: 5px;">Go to Website</a>
+       <a href="https://sushi-polyclinic.onrender.com/" style="display: inline-block; padding: 10px 20px; background: #047857; color: white; text-decoration: none; border-radius: 5px;">Go to Website</a>
       </body>
     </html>
   `);
