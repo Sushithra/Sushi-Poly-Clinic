@@ -30,6 +30,54 @@ const loadRazorpayScript = () =>
     document.body.appendChild(script);
   });
 
+const parseTimeSlot = (timeSlot) => {
+  const match = String(timeSlot || '').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (!match) return null;
+
+  let hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  const meridian = match[3].toUpperCase();
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes) || hours < 1 || hours > 12 || minutes < 0 || minutes > 59) {
+    return null;
+  }
+
+  hours = hours % 12;
+  if (meridian === 'PM') {
+    hours += 12;
+  }
+
+  return { hours, minutes };
+};
+
+const getConsultationWindow = (dateValue, timeSlot, openBeforeMinutes = 0, closeAfterMinutes = 240, nowTimestamp = Date.now()) => {
+  const date = new Date(dateValue);
+  const timeParts = parseTimeSlot(timeSlot);
+
+  if (Number.isNaN(date.getTime()) || !timeParts) {
+    return { startsAt: null, endsAt: null, canJoinNow: false };
+  }
+
+  date.setHours(timeParts.hours, timeParts.minutes, 0, 0);
+  const startsAt = new Date(date.getTime() - openBeforeMinutes * 60 * 1000);
+  const endsAt = new Date(date.getTime() + closeAfterMinutes * 60 * 1000);
+
+  return {
+    startsAt,
+    endsAt,
+    canJoinNow: nowTimestamp >= startsAt.getTime() && nowTimestamp <= endsAt.getTime(),
+  };
+};
+
+const isAppointmentPaymentExpired = (appointment, nowTimestamp = Date.now()) => {
+  if (!appointment || appointment.paymentStatus === 'paid' || appointment.status === 'cancelled' || appointment.status === 'completed') {
+    return false;
+  }
+
+  const windowInfo = getConsultationWindow(appointment.date, appointment.timeSlot, 0, 240, nowTimestamp);
+  return Boolean(windowInfo.endsAt && nowTimestamp > windowInfo.endsAt.getTime());
+};
+
 export default function AppointmentPayment() {
   const { appointmentId } = useParams();
   const navigate = useNavigate();
@@ -41,6 +89,15 @@ export default function AppointmentPayment() {
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState('');
   const [scriptReady, setScriptReady] = useState(false);
+
+  const bookAgain = () => {
+    navigate('/appointments/book', {
+      state: {
+        doctorId: appointment?.doctor?._id || appointment?.doctor || '',
+        specialty: appointment?.doctorSpecialty || appointment?.doctor?.specialty || '',
+      },
+    });
+  };
 
   useEffect(() => {
     if (!session || !session.token) {
@@ -103,6 +160,11 @@ export default function AppointmentPayment() {
   const handleRazorpayCheckout = async () => {
     if (!session?.token) {
       setError('Please log in again to continue.');
+      return;
+    }
+
+    if (isAppointmentPaymentExpired(appointment)) {
+      setError('This appointment window has ended. Please book another time.');
       return;
     }
 
@@ -254,6 +316,19 @@ export default function AppointmentPayment() {
                       Open consultation
                     </button>
                   </div>
+                ) : isAppointmentPaymentExpired(appointment) ? (
+                  <div className="mt-6 rounded-2xl border border-red-400/20 bg-red-500/10 p-5">
+                    <p className="text-red-50 font-semibold">This slot has expired.</p>
+                    <p className="mt-2 text-sm text-red-100/90">
+                      The booked time has passed without payment. Please book another slot with the doctor.
+                    </p>
+                    <button
+                      onClick={bookAgain}
+                      className="mt-4 inline-flex items-center justify-center rounded-2xl bg-red-300 px-6 py-3 font-semibold text-slate-950 transition hover:bg-red-200"
+                    >
+                      Book again
+                    </button>
+                  </div>
                 ) : appointment.status !== 'confirmed' && appointment.status !== 'current' ? (
                   <div className="mt-6 rounded-2xl border border-amber-400/20 bg-amber-500/10 p-5">
                     <p className="text-amber-50 font-semibold">Waiting for doctor confirmation.</p>
@@ -265,10 +340,10 @@ export default function AppointmentPayment() {
                   <>
                     <button
                       onClick={handleRazorpayCheckout}
-                      disabled={processing || !scriptReady || !import.meta.env.VITE_RAZORPAY_KEY_ID}
+                      disabled={processing || !scriptReady || !import.meta.env.VITE_RAZORPAY_KEY_ID || isAppointmentPaymentExpired(appointment)}
                       className="mt-6 inline-flex items-center justify-center rounded-2xl bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      {processing ? 'Opening Razorpay...' : 'Pay with Razorpay'}
+                      {isAppointmentPaymentExpired(appointment) ? 'Book again' : processing ? 'Opening Razorpay...' : 'Pay with Razorpay'}
                     </button>
                     {!scriptReady && (
                       <p className="mt-3 text-sm text-slate-300">Loading secure checkout...</p>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { resolveRecordUrl } from '../../utils/recordUrl.js';
 
 export default function DoctorPatients() {
   const navigate = useNavigate();
@@ -123,7 +124,7 @@ export default function DoctorPatients() {
                     <h3 className="mb-3 text-lg font-semibold text-neutral-900">Uploaded records</h3>
                     <div className="space-y-3">
                       {details.records?.length ? details.records.map((record) => (
-                        <a key={record._id} href={record.fileUrl} target="_blank" rel="noreferrer" className="block rounded-2xl border border-neutral-200 bg-neutral-50 p-4 hover:bg-neutral-100">
+                        <a key={record._id} href={resolveRecordUrl(record.fileUrl)} target="_blank" rel="noreferrer" className="block rounded-2xl border border-neutral-200 bg-neutral-50 p-4 hover:bg-neutral-100">
                           <div className="font-semibold text-neutral-900">{record.title}</div>
                           <div className="text-xs text-neutral-500">{new Date(record.createdAt).toLocaleDateString()}</div>
                           <div className="text-xs text-neutral-500">{record.mimeType?.includes('pdf') ? 'PDF' : 'Image'}</div>

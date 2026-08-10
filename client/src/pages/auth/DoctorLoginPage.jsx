@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton.jsx';
 import { registerPushToken } from '../../services/pushNotifications.js';
+import { withApiBase } from '../../config/env.js';
 
 export default function DoctorLoginPage() {
   const [email, setEmail] = useState('');
@@ -16,7 +17,10 @@ export default function DoctorLoginPage() {
     setLoading(true);
     setError('');
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+      const { data } = await axios.post(
+  withApiBase('/api/auth/login'),
+  { email, password }
+);
       if (data.role !== 'doctor') {
         setError('This portal is only for registered healthcare professionals.');
         return;
@@ -40,11 +44,14 @@ export default function DoctorLoginPage() {
     setError('');
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/google', {
-        idToken: credential,
-        role: 'doctor',
-        mode: 'login',
-      });
+      const { data } = await axios.post(
+  withApiBase('/api/auth/google'),
+  {
+    idToken: credential,
+    role: 'doctor',
+    mode: 'login',
+  }
+);
 
       if (data.role !== 'doctor') {
         setError('This Google account is not set up for the doctor portal.');

@@ -16,7 +16,7 @@ const saveBufferLocally = async (file) => {
   const fileName = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}-${safeName}`;
   await fs.writeFile(path.join(uploadDir, fileName), file.buffer);
   return {
-    url: `${process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 5000}`}/uploads/${fileName}`,
+    url: `/uploads/${fileName}`,
     public_id: fileName,
   };
 };

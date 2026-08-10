@@ -32,7 +32,7 @@ const saveBufferLocally = async (file) => {
   const filePath = path.join(uploadDir, fileName);
   await fs.writeFile(filePath, file.buffer);
   return {
-    secure_url: `${process.env.API_BASE_URL || `http://localhost:${process.env.PORT || 5000}`}/uploads/${fileName}`,
+    secure_url: `/uploads/${fileName}`,
     public_id: fileName,
   };
 };

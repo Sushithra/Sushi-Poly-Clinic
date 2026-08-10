@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { API_BASE_URL } from '../../config/env.js';
+import { resolveRecordUrl } from '../../utils/recordUrl.js';
 
 const loadRazorpayScript = () =>
   new Promise((resolve) => {
@@ -64,11 +64,13 @@ const getConsultationWindow = (dateValue, timeSlot, openBeforeMinutes = 0, close
 };
 
 const getRazorpayPublicKey = () => import.meta.env.VITE_RAZORPAY_KEY_ID || '';
-const resolveRecordUrl = (value) => {
-  const url = String(value || '');
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return `${API_BASE_URL}/${url.replace(/^\/+/, '')}`;
+const isAppointmentPaymentExpired = (app, nowTimestamp = Date.now()) => {
+  if (!app || app.paymentStatus === 'paid' || app.status === 'cancelled' || app.status === 'completed') {
+    return false;
+  }
+
+  const windowInfo = getConsultationWindow(app.date, app.timeSlot, 0, 240, nowTimestamp);
+  return Boolean(windowInfo.endsAt && nowTimestamp > windowInfo.endsAt.getTime());
 };
 
 export default function PatientDashboard() {
@@ -84,6 +86,7 @@ export default function PatientDashboard() {
   const [recordUploadLoading, setRecordUploadLoading] = useState(false);
   const [recordError, setRecordError] = useState('');
   const [previewRecord, setPreviewRecord] = useState(null);
+  const [previewRecordError, setPreviewRecordError] = useState('');
   const [razorpayReady, setRazorpayReady] = useState(false);
   const [now, setNow] = useState(Date.now());
   const navigate = useNavigate();
@@ -141,7 +144,8 @@ export default function PatientDashboard() {
           if (
             targetAppointment &&
             (targetAppointment.status === 'confirmed' || targetAppointment.status === 'current') &&
-            targetAppointment.paymentStatus !== 'paid'
+            targetAppointment.paymentStatus !== 'paid' &&
+            !isAppointmentPaymentExpired(targetAppointment)
           ) {
             setPaymentTarget(targetAppointment);
             setPaymentError('');
@@ -224,10 +228,27 @@ export default function PatientDashboard() {
 
   const openPayment = (appointmentId) => {
     const appointment = appointments.find((item) => item._id === appointmentId) || null;
+    if (isAppointmentPaymentExpired(appointment, now)) {
+      setPaymentTarget(null);
+      setPaymentError('This appointment window has ended. Please book another time.');
+      setPaymentModalOpen(false);
+      return;
+    }
+
     setPaymentTarget(appointment);
     setPaymentError('');
     setPaymentNotice('');
     setPaymentModalOpen(true);
+  };
+
+  const bookAgainForAppointment = (appointment) => {
+    const doctorId = appointment?.doctor?._id || appointment?.doctor || '';
+    navigate('/appointments/book', {
+      state: {
+        doctorId,
+        specialty: appointment?.doctorSpecialty || appointment?.doctor?.specialty || '',
+      },
+    });
   };
 
   const handleRecordUpload = async (e) => {
@@ -268,6 +289,7 @@ export default function PatientDashboard() {
       setPatientRecords((current) => current.filter((record) => record._id !== recordId));
       if (previewRecord?._id === recordId) {
         setPreviewRecord(null);
+        setPreviewRecordError('');
       }
     } catch (error) {
       setRecordError(error.response?.data?.message || 'Unable to delete record');
@@ -292,6 +314,11 @@ export default function PatientDashboard() {
   const handlePayWithRazorpay = async () => {
     if (!paymentTarget) {
       setPaymentError('Select an appointment first.');
+      return;
+    }
+
+    if (isAppointmentPaymentExpired(paymentTarget, now)) {
+      setPaymentError('This appointment window has ended. Please book another time.');
       return;
     }
 
@@ -374,7 +401,12 @@ export default function PatientDashboard() {
     return Boolean(windowInfo.startsAt && now >= windowInfo.startsAt.getTime());
   };
 
+  const isExpiredUnpaidAppointment = (app) => isAppointmentPaymentExpired(app, now);
+
   if (!userInfo) return null;
+
+  const previewFileUrl = resolveRecordUrl(previewRecord?.fileUrl);
+  const paymentWindowExpired = isAppointmentPaymentExpired(paymentTarget, now);
 
   return (
     <div className="min-h-screen bg-neutral-50 flex flex-col">
@@ -485,12 +517,16 @@ export default function PatientDashboard() {
                             ? 'bg-violet-100 text-violet-700'
                             : app.paymentStatus === 'paid'
                               ? 'bg-green-100 text-green-700'
+                              : isExpiredUnpaidAppointment(app)
+                                ? 'bg-red-100 text-red-700'
                               : 'bg-yellow-100 text-yellow-700'
                         }`}>
                           {app.status === 'completed'
                             ? 'Completed'
                             : app.paymentStatus === 'paid'
                               ? 'Paid'
+                              : isExpiredUnpaidAppointment(app)
+                                ? 'Time expired'
                               : app.status === 'pending' || app.status === 'requested'
                                 ? 'Waiting for confirmation'
                                 : 'Payment pending'}
@@ -514,6 +550,13 @@ export default function PatientDashboard() {
                           <span className="px-4 py-2 text-sm font-semibold rounded-xl bg-sky-100 text-sky-700">
                             Waiting for meeting
                           </span>
+                        ) : isExpiredUnpaidAppointment(app) ? (
+                          <button
+                            onClick={() => bookAgainForAppointment(app)}
+                            className="px-4 py-2 text-sm font-semibold rounded-xl bg-red-600 text-white hover:bg-red-700"
+                          >
+                            Book again
+                          </button>
                         ) : app.status === 'confirmed' || app.status === 'current' ? (
                           <button
                             onClick={() => openPayment(app._id)}
@@ -536,6 +579,11 @@ export default function PatientDashboard() {
                         {app.status === 'cancelled' && app.paymentStatus === 'refunded' && (
                           <div className="mt-2 ml-16 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-2">
                             Refund initiated for this appointment.
+                          </div>
+                        )}
+                        {isExpiredUnpaidAppointment(app) && (
+                          <div className="mt-2 ml-16 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
+                            This slot has passed without payment. Please book another time to continue.
                           </div>
                         )}
                       </React.Fragment>
@@ -591,7 +639,10 @@ export default function PatientDashboard() {
                     <div className="flex items-center justify-between gap-3">
                       <button
                         type="button"
-                        onClick={() => setPreviewRecord(record)}
+                        onClick={() => {
+                          setPreviewRecord(record);
+                          setPreviewRecordError('');
+                        }}
                         className="text-left"
                       >
                         <p className="font-semibold text-neutral-900">{record.title}</p>
@@ -601,7 +652,10 @@ export default function PatientDashboard() {
                       <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => setPreviewRecord(record)}
+                          onClick={() => {
+                            setPreviewRecord(record);
+                            setPreviewRecordError('');
+                          }}
                           className="rounded-xl border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 hover:bg-neutral-100"
                         >
                           View
@@ -631,25 +685,56 @@ export default function PatientDashboard() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => setPreviewRecord(null)}
+                    onClick={() => {
+                      setPreviewRecord(null);
+                      setPreviewRecordError('');
+                    }}
                     className="rounded-full px-3 py-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
                     aria-label="Close preview"
                   >
                     ×
                   </button>
                 </div>
-                {previewRecord.mimeType?.includes('pdf') ? (
+                {previewRecordError ? (
+                  <div className="flex h-[55vh] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 px-6 text-center">
+                    <p className="text-base font-semibold text-neutral-900">Preview unavailable</p>
+                    <p className="mt-2 text-sm text-neutral-500">{previewRecordError}</p>
+                    {previewFileUrl && (
+                      <a
+                        href={previewFileUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-4 inline-flex items-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white hover:bg-primary-700"
+                      >
+                        Open file
+                      </a>
+                    )}
+                  </div>
+                ) : previewRecord.mimeType?.includes('pdf') ? (
                   <iframe
                     title={previewRecord.title}
-                    src={resolveRecordUrl(previewRecord.fileUrl)}
+                    src={previewFileUrl}
                     className="h-[75vh] w-full rounded-2xl border border-neutral-200"
                   />
                 ) : (
                   <img
-                    src={resolveRecordUrl(previewRecord.fileUrl)}
+                    src={previewFileUrl}
                     alt={previewRecord.title}
+                    onError={() => setPreviewRecordError('The file could not be loaded from the server.')}
                     className="max-h-[75vh] w-full rounded-2xl object-contain bg-neutral-100"
                   />
+                )}
+                {!previewRecordError && previewFileUrl && (
+                  <div className="mt-3 flex justify-end">
+                    <a
+                      href={previewFileUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm font-semibold text-primary-600 hover:text-primary-700"
+                    >
+                      Open in new tab
+                    </a>
+                  </div>
                 )}
               </div>
             </div>
@@ -699,13 +784,22 @@ export default function PatientDashboard() {
                 Cancel
               </button>
               <button
-                onClick={handlePayWithRazorpay}
-                disabled={paymentLoading || !razorpayReady}
+                onClick={paymentWindowExpired ? () => { closePaymentModal(); bookAgainForAppointment(paymentTarget); } : handlePayWithRazorpay}
+                disabled={paymentLoading || (!paymentWindowExpired && !razorpayReady)}
                 className="rounded-2xl bg-primary-600 px-5 py-3 font-semibold text-white hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {paymentLoading ? 'Opening Razorpay...' : 'Pay with Razorpay'}
+                {paymentWindowExpired
+                  ? 'Book again'
+                  : paymentLoading
+                    ? 'Opening Razorpay...'
+                    : 'Pay with Razorpay'}
               </button>
             </div>
+            {paymentWindowExpired && (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                This appointment window has ended. Please book another time instead of paying for this slot.
+              </div>
+            )}
           </div>
         </div>
       )}
