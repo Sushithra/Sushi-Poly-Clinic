@@ -16,19 +16,31 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const httpServer = createServer(app);
-const port = Number(process.env.PORT || 5000);
+const port = Number(process.env.PORT || 10000);
 const uploadsDir = path.resolve(__dirname, '../uploads');
+const allowedOrigins = new Set([
+  'https://sushi-polyclinic.onrender.com',
+  'https://sushi-poly-clinic.onrender.com',
+  process.env.FRONTEND_URL,
+].filter(Boolean));
 
 app.use(
   cors({
-    origin: true,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error('Not allowed by CORS'));
+    },
     credentials: true,
   }),
 );
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 
-// Add a friendly root endpoint so visiting localhost:5000 directly doesn't say "Cannot GET /"
+// Add a friendly root endpoint for direct backend visits.
 app.get("/", (_request, response) => {
   response.send(`
     <html>
@@ -58,7 +70,7 @@ const startServer = async () => {
   registerWebrtcSignaling(httpServer);
 
   httpServer.listen(port, () => {
-    console.log(`Eclinic server listening on http://localhost:${port}`);
+    console.log(`Eclinic server listening on port ${port}`);
   });
 };
 

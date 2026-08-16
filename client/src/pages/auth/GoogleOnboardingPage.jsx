@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { registerPushToken } from '../../services/pushNotifications.js';
+import { withApiBase } from '../../config/env.js';
 
 const doctorCategories = [
   { label: 'General', value: 'General' },
@@ -114,7 +115,7 @@ export default function GoogleOnboardingPage() {
     try {
       const config = { headers: { Authorization: `Bearer ${authState.token}` } };
       const { data } = await axios.put(
-        'http://localhost:5000/api/auth/profile',
+        withApiBase('/api/auth/profile'),
         {
           name: formData.name,
           phone: formData.phone,

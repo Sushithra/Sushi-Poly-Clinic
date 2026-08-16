@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { withApiBase } from '../../config/env.js';
 
 const categories = [
   { label: 'General', value: 'general' },
@@ -59,7 +60,7 @@ export default function DoctorsPage() {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/doctors');
+        const { data } = await axios.get(withApiBase('/api/doctors'));
         setDoctors(Array.isArray(data) ? data : []);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load doctors');

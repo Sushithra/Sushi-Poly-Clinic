@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import PrimaryButton from '../../components/buttons/PrimaryButton';
+import { withApiBase } from '../../config/env.js';
 
 export default function PharmacyPage() {
   const [products, setProducts] = useState([]);
@@ -9,7 +10,7 @@ export default function PharmacyPage() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/products');
+        const { data } = await axios.get(withApiBase('/api/products'));
         setProducts(data);
       } catch (error) {
         console.error("Failed to fetch products", error);

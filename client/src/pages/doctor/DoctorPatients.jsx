@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { resolveRecordUrl } from '../../utils/recordUrl.js';
+import { withApiBase } from '../../config/env.js';
 
 export default function DoctorPatients() {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ export default function DoctorPatients() {
       try {
         setLoading(true);
         const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
-        const { data } = await axios.get('http://localhost:5000/api/patient-records/doctor/patients', config);
+        const { data } = await axios.get(withApiBase('/api/patient-records/doctor/patients'), config);
         setPatients(Array.isArray(data) ? data : []);
         if (data?.[0]?._id) {
           setSelectedPatientId(data[0]._id);
@@ -43,7 +44,7 @@ export default function DoctorPatients() {
     const loadDetails = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
-        const { data } = await axios.get(`http://localhost:5000/api/patient-records/doctor/patients/${selectedPatientId}`, config);
+        const { data } = await axios.get(withApiBase(`/api/patient-records/doctor/patients/${selectedPatientId}`), config);
         setDetails(data);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load patient details');

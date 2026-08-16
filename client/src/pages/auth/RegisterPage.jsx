@@ -146,6 +146,7 @@ export default function RegisterPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
           <button
+            data-testid="signup-role-patient"
             type="button"
             onClick={() => setRole('patient')}
             className={`rounded-xl border p-4 text-left transition ${role === 'patient' ? 'border-primary-600 bg-primary-50' : 'border-neutral-200'}`}
@@ -154,6 +155,7 @@ export default function RegisterPage() {
             <div className="text-sm text-neutral-600">Book appointments and manage your care.</div>
           </button>
           <button
+            data-testid="signup-role-doctor"
             type="button"
             onClick={() => setRole('doctor')}
             className={`rounded-xl border p-4 text-left transition ${role === 'doctor' ? 'border-primary-600 bg-primary-50' : 'border-neutral-200'}`}
@@ -167,23 +169,23 @@ export default function RegisterPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">Full Name</label>
-              <input type="text" value={formData.name} onChange={(e) => setField('name', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
+              <input data-testid="signup-name" type="text" value={formData.name} onChange={(e) => setField('name', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
             </div>
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">Email</label>
-              <input type="email" value={formData.email} onChange={(e) => setField('email', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
+              <input data-testid="signup-email" type="email" value={formData.email} onChange={(e) => setField('email', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
             </div>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">Password</label>
-            <input type="password" value={formData.password} onChange={(e) => setField('password', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required minLength="6" />
+            <input data-testid="signup-password" type="password" value={formData.password} onChange={(e) => setField('password', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required minLength="6" />
           </div>
 
           {!isDoctor ? (
             <div>
               <label className="block text-sm font-medium text-neutral-700 mb-1">Age</label>
-              <input type="number" min="0" value={formData.age} onChange={(e) => setField('age', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
+              <input data-testid="signup-age" type="number" min="0" value={formData.age} onChange={(e) => setField('age', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
             </div>
           ) : (
             <>
@@ -191,8 +193,9 @@ export default function RegisterPage() {
                 <label className="block text-sm font-medium text-neutral-700 mb-2">Specializations</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {doctorSpecializations.map((specialization) => (
-                    <button
-                      key={specialization}
+                      <button
+                        data-testid={`signup-specialization-${specialization.toLowerCase().replace(/\s+/g, '-')}`}
+                        key={specialization}
                       type="button"
                       onClick={() => toggleSpecialization(specialization)}
                       className={`rounded-xl border p-3 text-left ${formData.specializations.includes(specialization) ? 'border-primary-600 bg-primary-50' : 'border-neutral-200'}`}
@@ -205,11 +208,11 @@ export default function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-1">Experience Years</label>
-                  <input type="number" min="0" value={formData.experienceYears} onChange={(e) => setField('experienceYears', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
+                  <input data-testid="signup-experience-years" type="number" min="0" value={formData.experienceYears} onChange={(e) => setField('experienceYears', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-neutral-700 mb-1">Consultation Fee</label>
-                  <input type="number" min="0" value={formData.consultationFee} onChange={(e) => setField('consultationFee', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
+                  <input data-testid="signup-consultation-fee" type="number" min="0" value={formData.consultationFee} onChange={(e) => setField('consultationFee', e.target.value)} className="w-full p-3 border border-neutral-300 rounded-lg" required />
                 </div>
               </div>
             </>

@@ -23,3 +23,25 @@ if (import.meta.env.DEV) {
     </BrowserRouter>,
   );
 }
+
+// Register service worker in production and provide simple update/offline events
+if (!import.meta.env.DEV && 'serviceWorker' in navigator) {
+  import('virtual:pwa-register').then(({ registerSW }) => {
+    try {
+      registerSW({
+        onNeedRefresh() {
+          window.dispatchEvent(new CustomEvent('sw:need-refresh'));
+        },
+        onOfflineReady() {
+          window.dispatchEvent(new CustomEvent('sw:offline-ready'));
+        },
+      });
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('Service worker registration failed:', err);
+    }
+  }).catch((e) => {
+    // eslint-disable-next-line no-console
+    console.error('PWA register import failed:', e);
+  });
+}

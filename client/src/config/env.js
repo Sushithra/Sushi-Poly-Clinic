@@ -1,7 +1,7 @@
 const normalizeUrl = (value) => String(value || '').replace(/\/+$/, '');
 
 export const API_BASE_URL =
-  normalizeUrl(import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_SERVER_URL || 'http://localhost:5000');
+  normalizeUrl(import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_SERVER_URL || 'https://sushi-poly-clinic.onrender.com');
 
 export const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 export const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID || '';

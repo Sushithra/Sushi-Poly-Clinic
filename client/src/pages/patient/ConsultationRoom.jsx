@@ -3,6 +3,7 @@ import axios from 'axios';
 import { io } from 'socket.io-client';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/env.js';
+import { withApiBase } from '../../config/env.js';
 
 const getSession = () => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -72,7 +73,7 @@ export default function ConsultationRoom() {
         setLoading(true);
         setError('');
         const config = { headers: { Authorization: `Bearer ${session.token}` } };
-        const { data } = await axios.get(`http://localhost:5000/api/appointments/${appointmentId}/consultation-access`, config);
+        const { data } = await axios.get(withApiBase(`/api/appointments/${appointmentId}/consultation-access`), config);
         setAppointment(data.appointment);
         setConsultation(data.consultation);
       } catch (err) {
@@ -374,7 +375,7 @@ export default function ConsultationRoom() {
     try {
       setError('');
       const config = { headers: { Authorization: `Bearer ${session.token}` } };
-      await axios.patch(`http://localhost:5000/api/appointments/${appointmentId}/complete`, {}, config);
+      await axios.patch(withApiBase(`/api/appointments/${appointmentId}/complete`), {}, config);
       navigate('/doctor/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to mark consultation as done');

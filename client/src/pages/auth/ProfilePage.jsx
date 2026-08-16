@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { withApiBase } from '../../config/env.js';
 
 const loadSession = (pathname) => {
   const doctorInfo = localStorage.getItem('doctorInfo');
@@ -60,7 +61,7 @@ export default function ProfilePage() {
 
     const fetchProfile = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/auth/profile', {
+        const { data } = await axios.get(withApiBase('/api/auth/profile'), {
           headers: { Authorization: `Bearer ${session.token}` },
         });
 
@@ -126,7 +127,7 @@ export default function ProfilePage() {
         currentPassword: !isGoogleUser ? formData.currentPassword || undefined : undefined,
       };
 
-      const { data } = await axios.put('http://localhost:5000/api/auth/profile', payload, {
+      const { data } = await axios.put(withApiBase('/api/auth/profile'), payload, {
         headers: { Authorization: `Bearer ${session.token}` },
       });
 
@@ -159,7 +160,7 @@ export default function ProfilePage() {
     setError('');
 
     try {
-      await axios.delete('http://localhost:5000/api/auth/profile', {
+      await axios.delete(withApiBase('/api/auth/profile'), {
         headers: { Authorization: `Bearer ${session.token}` },
       });
 

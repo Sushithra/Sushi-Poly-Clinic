@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { withApiBase } from '../../config/env.js';
 
 const formatDate = (value) => {
   if (!value) return 'Unknown date';
@@ -52,7 +53,7 @@ export default function DoctorDashboard() {
       setAppointmentsLoading(true);
       setAppointmentsError('');
       const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
-      const { data } = await axios.get('http://localhost:5000/api/appointments/doctorappointments', config);
+      const { data } = await axios.get(withApiBase('/api/appointments/doctorappointments'), config);
       setAppointments(Array.isArray(data) ? data : []);
     } catch (error) {
       setAppointmentsError(error.response?.data?.message || 'Failed to load appointments');
@@ -63,7 +64,7 @@ export default function DoctorDashboard() {
 
   const fetchProducts = async () => {
     try {
-      const { data } = await axios.get('http://localhost:5000/api/products');
+      const { data } = await axios.get(withApiBase('/api/products'));
       setProducts(data);
     } catch (error) {
       console.error('Failed to fetch products', error);
@@ -74,7 +75,7 @@ export default function DoctorDashboard() {
     try {
       setActionLoadingId(id);
       const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
-      await axios.patch(`http://localhost:5000/api/appointments/${id}/confirm`, {}, config);
+      await axios.patch(withApiBase(`/api/appointments/${id}/confirm`), {}, config);
       await fetchAppointments();
     } catch (error) {
       alert('Failed to confirm appointment: ' + (error.response?.data?.message || error.message));
@@ -87,7 +88,7 @@ export default function DoctorDashboard() {
     try {
       setActionLoadingId(id);
       const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
-      await axios.patch(`http://localhost:5000/api/appointments/${id}/complete`, {}, config);
+      await axios.patch(withApiBase(`/api/appointments/${id}/complete`), {}, config);
       await fetchAppointments();
     } catch (error) {
       alert('Failed to mark appointment as done: ' + (error.response?.data?.message || error.message));
@@ -103,7 +104,7 @@ export default function DoctorDashboard() {
     try {
       setActionLoadingId(id);
       const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
-      await axios.patch(`http://localhost:5000/api/appointments/${id}/cancel`, { reason: reason.trim() }, config);
+      await axios.patch(withApiBase(`/api/appointments/${id}/cancel`), { reason: reason.trim() }, config);
       await fetchAppointments();
     } catch (error) {
       alert('Failed to cancel appointment: ' + (error.response?.data?.message || error.message));
@@ -117,7 +118,7 @@ export default function DoctorDashboard() {
     setLoading(true);
     try {
       const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
-      await axios.post('http://localhost:5000/api/products', newProduct, config);
+      await axios.post(withApiBase('/api/products'), newProduct, config);
       setNewProduct({ name: '', category: 'Pain Relief', price: '', image: '💊', prescriptionRequired: false });
       fetchProducts();
     } catch (error) {
@@ -131,7 +132,7 @@ export default function DoctorDashboard() {
     if (!window.confirm('Are you sure you want to delete this product?')) return;
     try {
       const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
-      await axios.delete(`http://localhost:5000/api/products/${id}`, config);
+      await axios.delete(withApiBase(`/api/products/${id}`), config);
       fetchProducts();
     } catch (error) {
       alert('Failed to delete product: ' + (error.response?.data?.message || error.message));
@@ -188,7 +189,7 @@ export default function DoctorDashboard() {
                 Profile
               </button>
               <span className="text-sm font-medium text-neutral-700">Dr. {doctorInfo.name}</span>
-              <button onClick={handleLogout} className="text-sm text-red-600 font-medium hover:text-red-700 transition">
+              <button data-testid="logout-button" onClick={handleLogout} className="text-sm text-red-600 font-medium hover:text-red-700 transition">
                 Sign out
               </button>
             </div>

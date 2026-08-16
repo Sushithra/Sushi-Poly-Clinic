@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { PrimaryButton } from '../buttons/Button';
+import { withApiBase } from '../../config/env.js';
 
 export default function AIChat({ onClose }) {
   const [messages, setMessages] = useState([{ sender: 'ai', text: 'Hello! I am your AI Health Assistant. How can I help you today?' }]);
@@ -17,7 +18,7 @@ export default function AIChat({ onClose }) {
     setLoading(true);
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/ai/chat', { message: userMessage.text });
+      const { data } = await axios.post(withApiBase('/api/ai/chat'), { message: userMessage.text });
       setMessages((prev) => [...prev, { sender: 'ai', text: data.reply, disclaimer: data.disclaimer }]);
     } catch (error) {
       setMessages((prev) => [...prev, { sender: 'ai', text: 'Sorry, I am having trouble connecting to the server.' }]);

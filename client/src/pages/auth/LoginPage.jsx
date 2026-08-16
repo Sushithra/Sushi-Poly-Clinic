@@ -76,6 +76,7 @@ export default function LoginPage() {
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">Email</label>
             <input 
+              data-testid="login-email"
               type="email" 
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -87,6 +88,7 @@ export default function LoginPage() {
           <div>
             <label className="block text-sm font-medium text-neutral-700 mb-1">Password</label>
             <input 
+              data-testid="login-password"
               type="password" 
               value={password}
               onChange={(e) => setPassword(e.target.value)}

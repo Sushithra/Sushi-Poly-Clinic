@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { withApiBase } from '../../config/env.js';
 
 export default function AppointmentBooking() {
   const [doctors, setDoctors] = useState([]);
@@ -29,7 +30,7 @@ export default function AppointmentBooking() {
 
     const fetchDoctors = async () => {
       try {
-        const { data } = await axios.get('http://localhost:5000/api/doctors');
+        const { data } = await axios.get(withApiBase('/api/doctors'));
         const list = Array.isArray(data) ? data : [];
         setDoctors(list);
 
@@ -126,7 +127,7 @@ export default function AppointmentBooking() {
       };
 
       const { data } = await axios.post(
-        'http://localhost:5000/api/appointments',
+        withApiBase('/api/appointments'),
           {
           doctorId: selectedDoctor,
           doctorName: displayDoctorName,

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { resolveRecordUrl } from '../../utils/recordUrl.js';
+import { withApiBase } from '../../config/env.js';
 
 const loadRazorpayScript = () =>
   new Promise((resolve) => {
@@ -135,7 +136,7 @@ export default function PatientDashboard() {
           return;
         }
         const config = { headers: { Authorization: `Bearer ${token}` } };
-        const { data } = await axios.get('http://localhost:5000/api/appointments/myappointments', config);
+        const { data } = await axios.get(withApiBase('/api/appointments/myappointments'), config);
         setAppointments(data);
 
         const targetId = location.state?.openPaymentAppointmentId;
@@ -172,7 +173,7 @@ export default function PatientDashboard() {
     const fetchPatientRecords = async () => {
       try {
         const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-        const { data } = await axios.get('http://localhost:5000/api/patient-records/me', config);
+        const { data } = await axios.get(withApiBase('/api/patient-records/me'), config);
         setPatientRecords(Array.isArray(data) ? data : []);
       } catch (error) {
         setRecordError(error.response?.data?.message || 'Failed to load records');
@@ -269,7 +270,7 @@ export default function PatientDashboard() {
           'Content-Type': 'multipart/form-data',
         },
       };
-      const { data } = await axios.post('http://localhost:5000/api/patient-records', formData, config);
+      const { data } = await axios.post(withApiBase('/api/patient-records'), formData, config);
       setPatientRecords((current) => [data, ...current]);
       setRecordFile(null);
       e.target.reset();
@@ -285,7 +286,7 @@ export default function PatientDashboard() {
 
     try {
       const config = { headers: { Authorization: `Bearer ${userInfo.token}` } };
-      await axios.delete(`http://localhost:5000/api/patient-records/${recordId}`, config);
+      await axios.delete(withApiBase(`/api/patient-records/${recordId}`), config);
       setPatientRecords((current) => current.filter((record) => record._id !== recordId));
       if (previewRecord?._id === recordId) {
         setPreviewRecord(null);
@@ -305,7 +306,7 @@ export default function PatientDashboard() {
   const verifyRazorpayPayment = async (payload) => {
     const token = userInfo?.token;
     const config = { headers: { Authorization: `Bearer ${token}` } };
-    const { data } = await axios.post('http://localhost:5000/api/verify-payment', payload, config);
+    const { data } = await axios.post(withApiBase('/api/verify-payment'), payload, config);
     setAppointments((current) => current.map((appointment) => (appointment._id === data.appointment._id ? data.appointment : appointment)));
     setPaymentNotice('Payment completed successfully.');
     closePaymentModal();
@@ -336,7 +337,7 @@ export default function PatientDashboard() {
       const amount = Math.max(100, Math.round(fee * 100));
 
       const { data: orderData } = await axios.post(
-        'http://localhost:5000/api/create-order',
+        withApiBase('/api/create-order'),
         {
           appointmentId: paymentTarget._id,
           amount,
@@ -421,7 +422,7 @@ export default function PatientDashboard() {
             >
               Profile
             </button>
-            <button onClick={handleLogout} className="text-red-500 font-medium hover:text-red-600">Logout</button>
+            <button data-testid="logout-button" onClick={handleLogout} className="text-red-500 font-medium hover:text-red-600">Logout</button>
           </div>
         </div>
       </div>

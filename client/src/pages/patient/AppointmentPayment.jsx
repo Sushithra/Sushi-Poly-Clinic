@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import { withApiBase } from '../../config/env.js';
 
 const getSession = () => {
   const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -110,7 +111,7 @@ export default function AppointmentPayment() {
         setLoading(true);
         setError('');
         const config = { headers: { Authorization: `Bearer ${session.token}` } };
-        const { data } = await axios.get(`http://localhost:5000/api/appointments/${appointmentId}`, config);
+        const { data } = await axios.get(withApiBase(`/api/appointments/${appointmentId}`), config);
         setAppointment(data);
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load appointment');
@@ -139,7 +140,7 @@ export default function AppointmentPayment() {
   const verifyPayment = async ({ razorpay_payment_id, razorpay_order_id, razorpay_signature }) => {
     const config = { headers: { Authorization: `Bearer ${session.token}` } };
     const { data } = await axios.post(
-      'http://localhost:5000/api/verify-payment',
+      withApiBase('/api/verify-payment'),
       {
         appointmentId,
         razorpay_payment_id,
@@ -181,7 +182,7 @@ export default function AppointmentPayment() {
       const config = { headers: { Authorization: `Bearer ${session.token}` } };
 
       const { data: orderData } = await axios.post(
-        'http://localhost:5000/api/create-order',
+        withApiBase('/api/create-order'),
         {
           appointmentId,
           amount,
