@@ -210,7 +210,6 @@ export const googleAuth = async (req, res) => {
     }
 
     const googleUser = await verifyGoogleToken(idToken);
-    const requestedRole = role === 'doctor' ? 'doctor' : 'patient';
     const authMode = mode === 'register' ? 'register' : 'login';
     const email = googleUser.email?.toLowerCase();
     const name = googleUser.name || googleUser.given_name || email?.split('@')[0] || 'User';
@@ -224,6 +223,14 @@ export const googleAuth = async (req, res) => {
     let user = await User.findOne({
       $or: [{ email }, { googleId: googleUser.sub }],
     });
+
+    const requestedRole = user?.role || (role === 'doctor' ? 'doctor' : 'patient');
+
+    if (!user && authMode === 'login') {
+      return res.status(404).json({
+        message: 'No account found for this Google email. Please register first.',
+      });
+    }
 
     if (user && user.role !== requestedRole) {
       return res.status(403).json({

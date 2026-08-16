@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import GoogleSignInButton from '../../components/auth/GoogleSignInButton.jsx';
-import { API_BASE_URL, IS_BACKEND_URL_DEFAULTED } from '../../config/env.js';
+import { API_BASE_URL, IS_BACKEND_URL_DEFAULTED, withApiBase } from '../../config/env.js';
 import { registerPushToken } from '../../services/pushNotifications.js';
 
 export default function LoginPage() {
@@ -24,14 +24,11 @@ export default function LoginPage() {
     }
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/login', { email, password });
-      if (data.role !== 'patient') {
-        setError('This sign in is for patients only. Please use the dedicated professional portal.');
-        return;
-      }
-      localStorage.setItem('userInfo', JSON.stringify(data));
+      const { data } = await axios.post(withApiBase('/api/auth/login'), { email, password });
+      const storageKey = data.role === 'doctor' ? 'doctorInfo' : 'userInfo';
+      localStorage.setItem(storageKey, JSON.stringify(data));
       registerPushToken(data).catch(() => {});
-      navigate('/patient/dashboard');
+      navigate(data.role === 'doctor' ? '/doctor/dashboard' : '/patient/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to login');
     } finally {
@@ -50,20 +47,14 @@ export default function LoginPage() {
     }
 
     try {
-      const { data } = await axios.post('http://localhost:5000/api/auth/google', {
+      const { data } = await axios.post(withApiBase('/api/auth/google'), {
         idToken: credential,
-        role: 'patient',
         mode: 'login',
       });
-
-      if (data.role !== 'patient') {
-        setError('This Google account is not set up for the patient portal.');
-        return;
-      }
-
-      localStorage.setItem('userInfo', JSON.stringify(data));
+      const storageKey = data.role === 'doctor' ? 'doctorInfo' : 'userInfo';
+      localStorage.setItem(storageKey, JSON.stringify(data));
       registerPushToken(data).catch(() => {});
-      navigate('/patient/dashboard');
+      navigate(data.role === 'doctor' ? '/doctor/dashboard' : '/patient/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Google sign-in failed');
     } finally {

@@ -54,7 +54,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!session) {
-      navigate(location.pathname.startsWith('/doctor/') ? '/doctor/login' : '/login');
+      navigate('/login');
       return;
     }
 
@@ -163,14 +163,10 @@ export default function ProfilePage() {
         headers: { Authorization: `Bearer ${session.token}` },
       });
 
-      const nextLoginPath = session?.storageKey === 'doctorInfo' || session?.role === 'doctor'
-        ? '/doctor/login'
-        : '/login';
-
       localStorage.removeItem('userInfo');
       localStorage.removeItem('doctorInfo');
       localStorage.removeItem('pendingGoogleAuth');
-      navigate(nextLoginPath);
+      navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to delete account');
     } finally {

@@ -282,7 +282,7 @@ export default function GoogleOnboardingPage() {
             </button>
             <button
               type="button"
-              onClick={() => navigate(role === 'doctor' ? '/doctor/login' : '/login')}
+              onClick={() => navigate('/login')}
               className="px-6 py-3 rounded-xl border border-neutral-300 text-neutral-700 font-semibold hover:bg-neutral-50"
             >
               Cancel

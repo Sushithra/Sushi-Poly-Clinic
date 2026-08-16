@@ -56,8 +56,14 @@ export default function HomePage() {
 					
 					<div className="flex flex-col sm:flex-row justify-center gap-4 mt-8">
 						<Link 
-							to="/login"
+							to="/register"
 							className="inline-block bg-emerald-700/50 hover:bg-emerald-700 border border-emerald-500/50 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all hover:scale-105 backdrop-blur-sm"
+						>
+							Sign Up
+						</Link>
+						<Link 
+							to="/login"
+							className="inline-block bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-8 rounded-xl shadow-lg transition-all hover:scale-105 backdrop-blur-sm"
 						>
 							Login
 						</Link>

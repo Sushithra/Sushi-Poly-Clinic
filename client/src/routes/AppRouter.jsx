@@ -18,8 +18,6 @@ import LoginPage from "../pages/auth/LoginPage.jsx";
 import RegisterPage from "../pages/auth/RegisterPage.jsx";
 import ProfilePage from "../pages/auth/ProfilePage.jsx";
 import PatientDashboard from "../pages/patient/PatientDashboard.jsx";
-import DoctorLoginPage from "../pages/auth/DoctorLoginPage.jsx";
-import DoctorRegisterPage from "../pages/auth/DoctorRegisterPage.jsx";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard.jsx";
 import DoctorPatients from "../pages/doctor/DoctorPatients.jsx";
 import PharmacyPage from "../pages/public/PharmacyPage.jsx";
@@ -239,17 +237,13 @@ export default function AppRouter() {
       />
       <Route
         path="/doctor/login"
-        element={
-          <DoctorLoginPage />
-        }
+        element={<Navigate to="/login" replace />}
       />
       <Route
         path="/doctor/register"
-        element={
-          <DoctorRegisterPage />
-        }
+        element={<Navigate to="/register" replace />}
       />
-      <Route path="/doctor-portal" element={<Navigate to="/doctor/login" replace />} />
+      <Route path="/doctor-portal" element={<Navigate to="/login" replace />} />
       <Route
         path="/doctor/dashboard"
         element={<DoctorDashboard />}
