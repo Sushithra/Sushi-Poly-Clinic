@@ -1,3 +1,6 @@
+// Asia/Kolkata (IST) is UTC+5:30 and does not observe daylight saving time.
+const KOLKATA_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
 const parseTimeSlot = (timeSlot) => {
   const match = String(timeSlot || '').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
   if (!match) return null;
@@ -19,31 +22,44 @@ const parseTimeSlot = (timeSlot) => {
 };
 
 export const parseAppointmentDateTime = (dateValue, timeSlot) => {
-  let parsedDate;
-
   if (dateValue instanceof Date) {
-    parsedDate = new Date(dateValue);
-  } else {
-    const text = String(dateValue || '').trim();
-    const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (!match) {
+    const parsedDate = new Date(dateValue);
+    if (Number.isNaN(parsedDate.getTime())) {
       return null;
     }
 
-    const [, year, month, day] = match;
-    parsedDate = new Date(Number(year), Number(month) - 1, Number(day));
+    const timeParts = parseTimeSlot(timeSlot);
+    if (!timeParts) {
+      return null;
+    }
+
+    parsedDate.setHours(timeParts.hours, timeParts.minutes, 0, 0);
+    return parsedDate;
   }
 
-  if (Number.isNaN(parsedDate.getTime())) {
+  const text = String(dateValue || '').trim();
+  const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!match) {
     return null;
   }
 
+  const [, year, month, day] = match;
   const timeParts = parseTimeSlot(timeSlot);
   if (!timeParts) {
     return null;
   }
 
-  parsedDate.setHours(timeParts.hours, timeParts.minutes, 0, 0);
+  // Treat the appointment date + timeSlot as Asia/Kolkata wall-clock time and
+  // convert it to the correct UTC instant. IST is UTC+5:30, so subtract the offset.
+  const parsedDate = new Date(
+    Date.UTC(Number(year), Number(month) - 1, Number(day), timeParts.hours, timeParts.minutes, 0, 0) -
+      KOLKATA_OFFSET_MS,
+  );
+
+  if (Number.isNaN(parsedDate.getTime())) {
+    return null;
+  }
+
   return parsedDate;
 };
 

@@ -4,6 +4,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { resolveRecordUrl } from '../../utils/recordUrl.js';
 import { withApiBase } from '../../config/env.js';
 
+// Asia/Kolkata (IST) is UTC+5:30 and does not observe daylight saving time.
+const KOLKATA_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+
 let razorpayScriptPromise = null;
 
 const loadRazorpayScript = () => {
@@ -59,16 +62,28 @@ const parseTimeSlot = (timeSlot) => {
 };
 
 const getConsultationWindow = (dateValue, timeSlot, openBeforeMinutes = 0, closeAfterMinutes = 240, nowTimestamp = Date.now()) => {
-  const date = new Date(dateValue);
+  const text = String(dateValue || '').trim();
+  const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   const timeParts = parseTimeSlot(timeSlot);
 
-  if (Number.isNaN(date.getTime()) || !timeParts) {
+  if (!match || !timeParts) {
     return { startsAt: null, endsAt: null, canJoinNow: false };
   }
 
-  date.setHours(timeParts.hours, timeParts.minutes, 0, 0);
-  const startsAt = new Date(date.getTime() - openBeforeMinutes * 60 * 1000);
-  const endsAt = new Date(date.getTime() + closeAfterMinutes * 60 * 1000);
+  const [, year, month, day] = match;
+  // Treat the appointment date + timeSlot as Asia/Kolkata wall-clock time and
+  // convert it to the correct UTC instant. IST is UTC+5:30, so subtract the offset.
+  const appointmentTime = new Date(
+    Date.UTC(Number(year), Number(month) - 1, Number(day), timeParts.hours, timeParts.minutes, 0, 0) -
+      KOLKATA_OFFSET_MS,
+  );
+
+  if (Number.isNaN(appointmentTime.getTime())) {
+    return { startsAt: null, endsAt: null, canJoinNow: false };
+  }
+
+  const startsAt = new Date(appointmentTime.getTime() - openBeforeMinutes * 60 * 1000);
+  const endsAt = new Date(appointmentTime.getTime() + closeAfterMinutes * 60 * 1000);
   return {
     startsAt,
     endsAt,
