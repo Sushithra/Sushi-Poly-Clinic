@@ -4,15 +4,24 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { resolveRecordUrl } from '../../utils/recordUrl.js';
 import { withApiBase } from '../../config/env.js';
 
-const loadRazorpayScript = () =>
-  new Promise((resolve) => {
-    if (window.Razorpay) {
-      resolve(true);
-      return;
-    }
+let razorpayScriptPromise = null;
 
+const loadRazorpayScript = () => {
+  if (window.Razorpay) {
+    return Promise.resolve(true);
+  }
+
+  if (razorpayScriptPromise) {
+    return razorpayScriptPromise;
+  }
+
+  razorpayScriptPromise = new Promise((resolve) => {
     const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
     if (existingScript) {
+      if (existingScript.readyState === 'loaded' || existingScript.readyState === 'complete') {
+        resolve(true);
+        return;
+      }
       existingScript.addEventListener('load', () => resolve(true), { once: true });
       existingScript.addEventListener('error', () => resolve(false), { once: true });
       return;
@@ -25,6 +34,9 @@ const loadRazorpayScript = () =>
     script.onerror = () => resolve(false);
     document.body.appendChild(script);
   });
+
+  return razorpayScriptPromise;
+};
 
 const parseTimeSlot = (timeSlot) => {
   const match = String(timeSlot || '').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
