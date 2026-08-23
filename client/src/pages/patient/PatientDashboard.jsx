@@ -102,10 +102,9 @@ export default function PatientDashboard() {
   const [previewRecordError, setPreviewRecordError] = useState('');
   const [razorpayReady, setRazorpayReady] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const [userInfo] = useState(() => JSON.parse(localStorage.getItem('userInfo')));
   const navigate = useNavigate();
   const location = useLocation();
-  
-  const userInfo = JSON.parse(localStorage.getItem('userInfo'));
 
   useEffect(() => {
     if (location.state?.activeTab) {
@@ -177,7 +176,7 @@ export default function PatientDashboard() {
     return () => {
       window.clearInterval(refreshTimer);
     };
-  }, [navigate, userInfo, location.state]);
+  }, [navigate, userInfo?.token, location.state]);
 
   useEffect(() => {
     if (!userInfo?.token) return;
@@ -193,7 +192,7 @@ export default function PatientDashboard() {
     };
 
     fetchPatientRecords();
-  }, [userInfo]);
+  }, [userInfo?.token]);
 
   const handleLogout = () => {
     localStorage.removeItem('userInfo');
