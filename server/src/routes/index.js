@@ -8,6 +8,9 @@ import aiRoutes from "./ai.routes.js";
 import productRoutes from "./product.routes.js";
 import paymentRoutes from "./payment.routes.js";
 import patientRecordRoutes from "./patientRecord.routes.js";
+import cartRoutes from "./cart.routes.js";
+import orderRoutes from "./order.routes.js";
+import categoryRoutes from "./category.routes.js";
 
 const router = Router();
 
@@ -19,6 +22,9 @@ router.use("/upload", uploadRoutes);
 router.use("/patient-records", patientRecordRoutes);
 router.use("/ai", aiRoutes);
 router.use("/products", productRoutes);
+router.use("/cart", cartRoutes);
+router.use("/orders", orderRoutes);
+router.use("/categories", categoryRoutes);
 router.use("/", paymentRoutes);
 
 router.get("/health", (_request, response) => {

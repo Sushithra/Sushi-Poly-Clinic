@@ -5,13 +5,17 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
 import cloudinary, { isCloudinaryConfigured } from '../config/cloudinary.js';
+import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const uploadDir = path.resolve(__dirname, '../../uploads');
+// Dedicated PUBLIC directory for pharmacy/product images. This is intentionally
+// separate from the private `server/uploads` directory that holds patient medical
+// records, so that exposing `/uploads` publicly can never serve medical records.
+const uploadDir = path.resolve(__dirname, '../../public/uploads');
 
 const saveBufferLocally = async (file) => {
   await fs.mkdir(uploadDir, { recursive: true });
@@ -24,7 +28,7 @@ const saveBufferLocally = async (file) => {
   };
 };
 
-router.post('/', upload.single('file'), async (req, res) => {
+router.post('/', protect, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });

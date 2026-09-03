@@ -4,6 +4,8 @@ dotenv.config();
 import cors from "cors";
 import express from "express";
 import { createServer } from "http";
+import path from "path";
+import { fileURLToPath } from "url";
 import routes from "./routes/index.js";
 import { connectDB } from "./database/db.js";
 import { startNotificationScheduler } from "./services/notification.service.js";
@@ -11,6 +13,8 @@ import { registerWebrtcSignaling } from "./services/webrtcSignaling.js";
 
 const app = express();
 const httpServer = createServer(app);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const port = Number(process.env.PORT || 10000);
 const allowedOrigins = new Set([
   'https://sushi-polyclinic.onrender.com',
@@ -35,6 +39,14 @@ app.use(express.json());
 // NOTE: patient-record files are served through the authenticated
 // GET /api/patient-records/:id/file endpoint, not a public static mount, so
 // medical records cannot be fetched without ownership/authorization.
+
+// Public endpoint for pharmacy/product images ONLY. This serves a dedicated
+// public directory (`server/public/uploads`) that is kept separate from the
+// private directory holding patient medical records (`server/uploads`).
+// Patient medical records are NOT accessible here; they are served exclusively
+// through the authenticated GET /api/patient-records/:id/file endpoint, which
+// enforces ownership / completed-consultation authorization.
+app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 app.get("/", (_request, response) => {
   response.send(`

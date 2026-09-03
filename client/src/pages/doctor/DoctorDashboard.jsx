@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { withApiBase } from '../../config/env.js';
+import { resolveRecordUrl } from '../../utils/recordUrl.js';
 
 const formatDate = (value) => {
   if (!value) return 'Unknown date';
@@ -18,8 +19,13 @@ export default function DoctorDashboard() {
   const [actionLoadingId, setActionLoadingId] = useState(null);
 
   const [products, setProducts] = useState([]);
-  const [newProduct, setNewProduct] = useState({ name: '', category: 'Pain Relief', price: '', image: '💊', prescriptionRequired: false });
+  const [categories, setCategories] = useState([]);
+  const [newProduct, setNewProduct] = useState({ name: '', category: 'Pain Relief', price: '', image: '💊', description: '', imageUrl: '', stock: 0, prescriptionRequired: false });
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [newCategory, setNewCategory] = useState({ name: '', icon: '💊', description: '' });
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     const info = localStorage.getItem('doctorInfo');
@@ -45,6 +51,8 @@ export default function DoctorDashboard() {
   useEffect(() => {
     if (activeTab === 'pharmacy') {
       fetchProducts();
+      fetchCategories();
+      fetchOrders();
     }
   }, [activeTab]);
 
@@ -68,6 +76,25 @@ export default function DoctorDashboard() {
       setProducts(data);
     } catch (error) {
       console.error('Failed to fetch products', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data } = await axios.get(withApiBase('/api/categories'));
+      setCategories(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to fetch categories', error);
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
+      const { data } = await axios.get(withApiBase('/api/orders/all'), config);
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to fetch orders', error);
     }
   };
 
@@ -113,18 +140,103 @@ export default function DoctorDashboard() {
     }
   };
 
+  const handleUploadImage = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploading(true);
+      const config = { headers: { Authorization: `Bearer ${doctorInfo.token}`, 'Content-Type': 'multipart/form-data' } };
+      const formData = new FormData();
+      formData.append('file', file);
+      const { data } = await axios.post(withApiBase('/api/upload'), formData, config);
+      const url = data.url || '';
+      if (editingProduct) {
+        setEditingProduct({ ...editingProduct, imageUrl: url });
+      } else {
+        setNewProduct({ ...newProduct, imageUrl: url, image: '' });
+      }
+    } catch (error) {
+      alert('Failed to upload image: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleAddProduct = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
       await axios.post(withApiBase('/api/products'), newProduct, config);
-      setNewProduct({ name: '', category: 'Pain Relief', price: '', image: '💊', prescriptionRequired: false });
+      setNewProduct({ name: '', category: categories[0]?.name || 'Pain Relief', price: '', image: '💊', description: '', imageUrl: '', stock: 0, prescriptionRequired: false });
       fetchProducts();
     } catch (error) {
       alert('Failed to add product: ' + (error.response?.data?.message || error.message));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditProduct = (product) => {
+    setEditingProduct({
+      _id: product._id,
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      description: product.description || '',
+      imageUrl: product.imageUrl || '',
+      image: product.image,
+      stock: product.stock ?? 0,
+      prescriptionRequired: product.prescriptionRequired
+    });
+  };
+
+  const handleSaveProduct = async (e) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    setLoading(true);
+    try {
+      const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
+      await axios.put(withApiBase(`/api/products/${editingProduct._id}`), editingProduct, config);
+      setEditingProduct(null);
+      fetchProducts();
+    } catch (error) {
+      alert('Failed to update product: ' + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
+    try {
+      const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
+      await axios.post(withApiBase('/api/categories'), newCategory, config);
+      setNewCategory({ name: '', icon: '💊', description: '' });
+      fetchCategories();
+    } catch (error) {
+      alert('Failed to add category: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this category?')) return;
+    try {
+      const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
+      await axios.delete(withApiBase(`/api/categories/${id}`), config);
+      fetchCategories();
+    } catch (error) {
+      alert('Failed to delete category: ' + (error.response?.data?.message || error.message));
+    }
+  };
+
+  const handleUpdateOrderStatus = async (id, status) => {
+    try {
+      const config = { headers: { Authorization: `Bearer ${doctorInfo.token}` } };
+      await axios.patch(withApiBase(`/api/orders/${id}/status`), { status }, config);
+      fetchOrders();
+    } catch (error) {
+      alert('Failed to update order status: ' + (error.response?.data?.message || error.message));
     }
   };
 
@@ -414,9 +526,10 @@ export default function DoctorDashboard() {
               <>
                 <header className="bg-white p-6 rounded-2xl shadow-sm border border-neutral-200">
                   <h1 className="text-2xl font-bold text-neutral-900">Pharmacy Management</h1>
-                  <p className="text-neutral-500 mt-1">Add or remove products from the public pharmacy store.</p>
+                  <p className="text-neutral-500 mt-1">Add, edit, or remove products and manage categories for the public pharmacy store.</p>
                 </header>
 
+                {/* Add Product */}
                 <form onSubmit={handleAddProduct} className="bg-white p-6 rounded-2xl shadow-sm border border-neutral-200">
                   <h2 className="text-lg font-bold text-neutral-900 mb-4">Add New Medicine</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -431,25 +544,109 @@ export default function DoctorDashboard() {
                     <div>
                       <label className="block text-sm font-medium text-neutral-700 mb-1">Category</label>
                       <select value={newProduct.category} onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })} className="w-full p-2 border rounded-lg">
-                        <option>Pain Relief</option>
-                        <option>Antibiotics</option>
-                        <option>Supplements</option>
-                        <option>Cold & Cough</option>
-                        <option>First Aid</option>
+                        {categories.length > 0 ? categories.map((c) => <option key={c._id || c.name} value={c.name}>{c.name}</option>) : (
+                          <>
+                            <option>Pain Relief</option>
+                            <option>Antibiotics</option>
+                            <option>Supplements</option>
+                            <option>Cold & Cough</option>
+                            <option>First Aid</option>
+                          </>
+                        )}
                       </select>
                     </div>
-                    <div className="flex items-center mt-6">
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-1">Stock</label>
+                      <input required type="number" min="0" value={newProduct.stock} onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })} className="w-full p-2 border rounded-lg" placeholder="100" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-neutral-700 mb-1">Description</label>
+                      <input type="text" value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} className="w-full p-2 border rounded-lg" placeholder="Short description shown in the store" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-neutral-700 mb-1">Product Image</label>
+                      <input type="file" accept="image/*" onChange={handleUploadImage} disabled={uploading} className="w-full p-2 border rounded-lg" />
+                      {newProduct.imageUrl && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <img src={resolveRecordUrl(newProduct.imageUrl)} alt="preview" className="w-12 h-12 object-cover rounded-lg" />
+                          <button type="button" onClick={() => setNewProduct({ ...newProduct, imageUrl: '', image: '💊' })} className="text-sm text-red-500 hover:text-red-700">Remove</button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center mt-8">
                       <label className="flex items-center cursor-pointer">
                         <input type="checkbox" checked={newProduct.prescriptionRequired} onChange={(e) => setNewProduct({ ...newProduct, prescriptionRequired: e.target.checked })} className="w-5 h-5 text-blue-600 rounded" />
                         <span className="ml-2 text-sm font-medium text-neutral-700">Requires Prescription</span>
                       </label>
                     </div>
                   </div>
-                  <button type="submit" disabled={loading} className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50">
+                  <button type="submit" disabled={loading || uploading} className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50">
                     {loading ? 'Adding...' : 'Add to Pharmacy'}
                   </button>
                 </form>
 
+                {/* Edit Product */}
+                {editingProduct && (
+                  <form onSubmit={handleSaveProduct} className="bg-white p-6 rounded-2xl shadow-sm border border-blue-200">
+                    <div className="flex justify-between items-center mb-4">
+                      <h2 className="text-lg font-bold text-neutral-900">Edit Medicine</h2>
+                      <button type="button" onClick={() => setEditingProduct(null)} className="text-sm text-neutral-500 hover:text-neutral-700">Cancel</button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">Product Name</label>
+                        <input required type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} className="w-full p-2 border rounded-lg" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">Price (₹)</label>
+                        <input required type="number" value={editingProduct.price} onChange={(e) => setEditingProduct({ ...editingProduct, price: e.target.value })} className="w-full p-2 border rounded-lg" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">Category</label>
+                        <select value={editingProduct.category} onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value })} className="w-full p-2 border rounded-lg">
+                          {categories.length > 0 ? categories.map((c) => <option key={c._id || c.name} value={c.name}>{c.name}</option>) : (
+                            <>
+                              <option>Pain Relief</option>
+                              <option>Antibiotics</option>
+                              <option>Supplements</option>
+                              <option>Cold & Cough</option>
+                              <option>First Aid</option>
+                            </>
+                          )}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">Stock</label>
+                        <input required type="number" min="0" value={editingProduct.stock} onChange={(e) => setEditingProduct({ ...editingProduct, stock: e.target.value })} className="w-full p-2 border rounded-lg" />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">Description</label>
+                        <input type="text" value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} className="w-full p-2 border rounded-lg" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-neutral-700 mb-1">Product Image</label>
+                        <input type="file" accept="image/*" onChange={handleUploadImage} disabled={uploading} className="w-full p-2 border rounded-lg" />
+                        {editingProduct.imageUrl && (
+                          <div className="mt-2 flex items-center gap-2">
+                            <img src={resolveRecordUrl(editingProduct.imageUrl)} alt="preview" className="w-12 h-12 object-cover rounded-lg" />
+                            <button type="button" onClick={() => setEditingProduct({ ...editingProduct, imageUrl: '', image: '💊' })} className="text-sm text-red-500 hover:text-red-700">Remove</button>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center mt-8">
+                        <label className="flex items-center cursor-pointer">
+                          <input type="checkbox" checked={editingProduct.prescriptionRequired} onChange={(e) => setEditingProduct({ ...editingProduct, prescriptionRequired: e.target.checked })} className="w-5 h-5 text-blue-600 rounded" />
+                          <span className="ml-2 text-sm font-medium text-neutral-700">Requires Prescription</span>
+                        </label>
+                      </div>
+                    </div>
+                    <button type="submit" disabled={loading || uploading} className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium disabled:opacity-50">
+                      {loading ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </form>
+                )}
+
+                {/* Product table */}
                 <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
                   <table className="w-full text-left border-collapse">
                     <thead>
@@ -457,6 +654,7 @@ export default function DoctorDashboard() {
                         <th className="p-4 font-semibold text-neutral-600">Product</th>
                         <th className="p-4 font-semibold text-neutral-600">Category</th>
                         <th className="p-4 font-semibold text-neutral-600">Price</th>
+                        <th className="p-4 font-semibold text-neutral-600">Stock</th>
                         <th className="p-4 font-semibold text-neutral-600">Rx</th>
                         <th className="p-4 font-semibold text-neutral-600">Action</th>
                       </tr>
@@ -464,22 +662,106 @@ export default function DoctorDashboard() {
                     <tbody>
                       {products.map((p) => (
                         <tr key={p._id} className="border-b border-neutral-100 last:border-0 hover:bg-neutral-50">
-                          <td className="p-4 font-medium text-neutral-900">{p.image} {p.name}</td>
+                          <td className="p-4 font-medium text-neutral-900">
+                            <div className="flex items-center gap-2">
+                              {p.imageUrl ? (
+                                <img src={resolveRecordUrl(p.imageUrl)} alt={p.name} className="w-10 h-10 object-cover rounded-lg" />
+                              ) : (
+                                <span className="text-xl">{p.image}</span>
+                              )}
+                              <span>{p.name}</span>
+                            </div>
+                          </td>
                           <td className="p-4 text-neutral-600">{p.category}</td>
                           <td className="p-4 text-neutral-900 font-medium">₹{p.price}</td>
+                          <td className="p-4 text-neutral-600">{p.stock ?? 0}</td>
                           <td className="p-4">
                             {p.prescriptionRequired ? <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-medium">Yes</span> : <span className="text-neutral-400">-</span>}
                           </td>
                           <td className="p-4">
+                            <button onClick={() => handleEditProduct(p)} className="text-blue-600 hover:text-blue-700 font-medium text-sm mr-3">Edit</button>
                             <button onClick={() => handleDeleteProduct(p._id)} className="text-red-500 hover:text-red-700 font-medium text-sm">Delete</button>
                           </td>
                         </tr>
                       ))}
                       {products.length === 0 && (
-                        <tr><td colSpan="5" className="p-6 text-center text-neutral-500">No products available.</td></tr>
+                        <tr><td colSpan="6" className="p-6 text-center text-neutral-500">No products available.</td></tr>
                       )}
                     </tbody>
                   </table>
+                </div>
+
+                {/* Category Management */}
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-neutral-200">
+                  <h2 className="text-lg font-bold text-neutral-900 mb-4">Manage Categories</h2>
+                  <form onSubmit={handleAddCategory} className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+                    <input required type="text" placeholder="Category name" value={newCategory.name} onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })} className="w-full p-2 border rounded-lg" />
+                    <input type="text" placeholder="Icon (emoji)" value={newCategory.icon} onChange={(e) => setNewCategory({ ...newCategory, icon: e.target.value })} className="w-full p-2 border rounded-lg" />
+                    <input type="text" placeholder="Description" value={newCategory.description} onChange={(e) => setNewCategory({ ...newCategory, description: e.target.value })} className="w-full p-2 border rounded-lg" />
+                    <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 font-medium">Add Category</button>
+                  </form>
+                  <div className="space-y-2">
+                    {categories.map((c) => (
+                      <div key={c._id || c.name} className="flex items-center justify-between border border-neutral-200 rounded-xl px-4 py-2">
+                        <span className="font-medium text-neutral-800">{c.icon} {c.name}</span>
+                        <button onClick={() => handleDeleteCategory(c._id)} className="text-red-500 hover:text-red-700 text-sm font-medium">Delete</button>
+                      </div>
+                    ))}
+                    {categories.length === 0 && <p className="text-neutral-500 text-sm">No categories yet. Add your first category above.</p>}
+                  </div>
+                </div>
+
+                {/* Orders */}
+                <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-neutral-200">
+                    <h2 className="text-lg font-bold text-neutral-900">Customer Orders</h2>
+                  </div>
+                  <div className="p-6">
+                    {orders.length === 0 ? (
+                      <div className="text-neutral-500 text-center py-8">No orders yet.</div>
+                    ) : (
+                      <div className="space-y-4">
+                        {orders.map((order) => (
+                          <div key={order._id} className="border border-neutral-200 rounded-2xl p-5">
+                            <div className="flex flex-wrap justify-between items-center gap-3 mb-3">
+                              <div>
+                                <span className="font-semibold text-neutral-900">Order #{order._id}</span>
+                                <span className="ml-3 text-sm text-neutral-500">{order.shippingAddress?.fullName} · ₹{order.totalAmount}</span>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold uppercase tracking-wide">{order.orderStatus}</span>
+                                <select
+                                  value={order.orderStatus}
+                                  onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
+                                  className="p-1 border border-neutral-300 rounded-lg text-sm"
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="confirmed">Confirmed</option>
+                                  <option value="processing">Processing</option>
+                                  <option value="shipped">Shipped</option>
+                                  <option value="delivered">Delivered</option>
+                                  <option value="cancelled">Cancelled</option>
+                                </select>
+                              </div>
+                            </div>
+                            <div className="text-sm text-neutral-600 mb-3">
+                              Ship to: {order.shippingAddress?.addressLine1}, {order.shippingAddress?.city}, {order.shippingAddress?.state} {order.shippingAddress?.pincode}
+                            </div>
+                            <div className="space-y-1">
+                              {order.items.map((item, idx) => (
+                                <div key={idx} className="flex items-center gap-3 text-sm">
+                                  <span className="text-xl">{item.image && item.image.length <= 4 ? item.image : '💊'}</span>
+                                  <span className="flex-1 font-medium text-neutral-800">{item.name}</span>
+                                  <span className="text-neutral-500">×{item.quantity}</span>
+                                  <span className="font-semibold text-neutral-900">₹{item.price * item.quantity}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </>
             )}

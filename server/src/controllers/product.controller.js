@@ -22,12 +22,11 @@ export const getProducts = async (req, res) => {
 
 export const createProduct = async (req, res) => {
   try {
-    // Only doctors or admins can create
     if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
       return res.status(403).json({ message: 'Only doctors can add products' });
     }
 
-    const { name, category, price, image, prescriptionRequired } = req.body;
+    const { name, category, price, image, imageUrl, description, stock, prescriptionRequired } = req.body;
     
     if (mongoose.connection.readyState !== 1) {
       const newProduct = { 
@@ -35,7 +34,10 @@ export const createProduct = async (req, res) => {
         name, 
         category, 
         price: Number(price), 
-        image: image || '💊', 
+        image: image || '💊',
+        imageUrl: imageUrl || '',
+        description: description || '',
+        stock: Number(stock) || 0,
         prescriptionRequired 
       };
       dummyProducts.push(newProduct);
@@ -46,11 +48,43 @@ export const createProduct = async (req, res) => {
       name, 
       category, 
       price: Number(price), 
-      image: image || '💊', 
+      image: image || '💊',
+      imageUrl: imageUrl || '',
+      description: description || '',
+      stock: Number(stock) || 0,
       prescriptionRequired, 
       doctor: req.user._id
     });
     res.status(201).json(product);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    if (req.user.role !== 'doctor' && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Only doctors can update products' });
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      const idx = dummyProducts.findIndex(p => p._id === req.params.id);
+      if (idx < 0) return res.status(404).json({ message: 'Product not found' });
+      const { name, category, price, image, imageUrl, description, stock, prescriptionRequired } = req.body;
+      dummyProducts[idx] = { ...dummyProducts[idx], name, category, price: Number(price), image, imageUrl, description, stock: Number(stock), prescriptionRequired };
+      return res.json(dummyProducts[idx]);
+    }
+
+    const { name, category, price, image, imageUrl, description, stock, prescriptionRequired } = req.body;
+    const product = await Product.findByIdAndUpdate(
+      req.params.id,
+      { name, category, price: Number(price), image, imageUrl, description, stock: Number(stock), prescriptionRequired },
+      { new: true, runValidators: true }
+    );
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    res.json(product);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
