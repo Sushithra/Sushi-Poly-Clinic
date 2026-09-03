@@ -1,6 +1,9 @@
 // Asia/Kolkata (IST) is UTC+5:30 and does not observe daylight saving time.
 const KOLKATA_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 
+// A patient/doctor may join the consultation 5 minutes before the scheduled time.
+export const CONSULTATION_WINDOW_BEFORE_MINUTES = 5;
+
 const parseTimeSlot = (timeSlot) => {
   const match = String(timeSlot || '').trim().match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
   if (!match) return null;

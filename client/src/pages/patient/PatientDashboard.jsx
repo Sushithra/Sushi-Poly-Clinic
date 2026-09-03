@@ -61,21 +61,33 @@ const parseTimeSlot = (timeSlot) => {
   return { hours, minutes };
 };
 
-const getConsultationWindow = (dateValue, timeSlot, openBeforeMinutes = 0, closeAfterMinutes = 240, nowTimestamp = Date.now()) => {
-  const text = String(dateValue || '').trim();
-  const match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+const getConsultationWindow = (dateValue, timeSlot, openBeforeMinutes = 5, closeAfterMinutes = 240, nowTimestamp = Date.now()) => {
   const timeParts = parseTimeSlot(timeSlot);
 
-  if (!match || !timeParts) {
+  if (!timeParts) {
     return { startsAt: null, endsAt: null, canJoinNow: false };
   }
 
-  const [, year, month, day] = match;
+  // Parse the appointment date. It may come from the API as a YYYY-MM-DD string
+  // or as a full ISO datetime string (e.g. "2026-09-03T00:00:00.000Z").
+  const parsedDate = new Date(dateValue);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return { startsAt: null, endsAt: null, canJoinNow: false };
+  }
+
+  // The stored date represents the wall-clock calendar day as UTC midnight.
   // Treat the appointment date + timeSlot as Asia/Kolkata wall-clock time and
   // convert it to the correct UTC instant. IST is UTC+5:30, so subtract the offset.
   const appointmentTime = new Date(
-    Date.UTC(Number(year), Number(month) - 1, Number(day), timeParts.hours, timeParts.minutes, 0, 0) -
-      KOLKATA_OFFSET_MS,
+    Date.UTC(
+      parsedDate.getUTCFullYear(),
+      parsedDate.getUTCMonth(),
+      parsedDate.getUTCDate(),
+      timeParts.hours,
+      timeParts.minutes,
+      0,
+      0,
+    ) - KOLKATA_OFFSET_MS,
   );
 
   if (Number.isNaN(appointmentTime.getTime())) {
@@ -424,7 +436,7 @@ export default function PatientDashboard() {
       return false;
     }
 
-    const windowInfo = getConsultationWindow(app.date, app.timeSlot, 0, 240, now);
+    const windowInfo = getConsultationWindow(app.date, app.timeSlot, 5, 240, now);
     return Boolean(windowInfo.startsAt && now >= windowInfo.startsAt.getTime());
   };
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { io } from 'socket.io-client';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/env.js';
 import { withApiBase } from '../../config/env.js';
 
@@ -36,13 +36,12 @@ const createPeerConnection = (onCandidate, onTrack, onStateChange) => {
 export default function ConsultationRoom() {
   const { appointmentId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
   const session = useMemo(() => getSession(), []);
   const isDoctorSession = Boolean(localStorage.getItem('doctorInfo')) && !localStorage.getItem('userInfo');
 
-  const [appointment, setAppointment] = useState(location.state?.appointment || null);
-  const [consultation, setConsultation] = useState(location.state?.consultation || null);
-  const [loading, setLoading] = useState(!location.state?.consultation);
+  const [appointment, setAppointment] = useState(null);
+  const [consultation, setConsultation] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [meetingStatus, setMeetingStatus] = useState('idle');
   const [isJoining, setIsJoining] = useState(false);

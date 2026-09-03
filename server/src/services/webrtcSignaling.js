@@ -2,9 +2,8 @@ import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
 import Appointment from '../models/Appointment.js';
 import User from '../models/User.js';
-import { getConsultationWindow, parseAppointmentDateTime } from './appointmentTiming.js';
+import { getConsultationWindow, parseAppointmentDateTime, CONSULTATION_WINDOW_BEFORE_MINUTES } from './appointmentTiming.js';
 
-const CONSULTATION_WINDOW_BEFORE_MINUTES = 0;
 const toIdString = (value) => {
   if (!value) return '';
   if (typeof value === 'string') return value;

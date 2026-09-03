@@ -2,9 +2,8 @@ import crypto from 'crypto';
 import Razorpay from 'razorpay';
 import mongoose from 'mongoose';
 import Appointment from '../models/Appointment.js';
-import { getConsultationWindow, parseAppointmentDateTime } from '../services/appointmentTiming.js';
+import { getConsultationWindow, parseAppointmentDateTime, CONSULTATION_WINDOW_BEFORE_MINUTES } from '../services/appointmentTiming.js';
 
-const CONSULTATION_WINDOW_BEFORE_MINUTES = 0;
 const CONSULTATION_WINDOW_AFTER_MINUTES = 240;
 
 const getRazorpayClient = () => {
