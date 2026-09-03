@@ -76,15 +76,10 @@ export const createRazorpayOrder = async (req, res) => {
       return res.status(503).json({ message: 'Database is not connected' });
     }
 
-    const { appointmentId, amount, currency = 'INR', receipt } = req.body;
+    const { appointmentId, currency = 'INR', receipt } = req.body;
 
-    if (!appointmentId || !amount || !receipt) {
-      return res.status(400).json({ message: 'appointmentId, amount, and receipt are required' });
-    }
-
-    const amountInPaise = Number(amount);
-    if (!Number.isInteger(amountInPaise) || amountInPaise < 100) {
-      return res.status(400).json({ message: 'Amount must be at least 100 paise' });
+    if (!appointmentId || !receipt) {
+      return res.status(400).json({ message: 'appointmentId and receipt are required' });
     }
 
     const appointment = await Appointment.findOne({
@@ -102,6 +97,15 @@ export const createRazorpayOrder = async (req, res) => {
 
     if (appointment.paymentStatus === 'paid') {
       return res.status(400).json({ message: 'Appointment is already paid' });
+    }
+
+    // The amount must come from the appointment's authoritative snapshotted
+    // consultation price (set by the backend at booking time), NOT from the
+    // patient frontend, so a client cannot underpay or overpay.
+    const priceInRupees = Number(appointment.consultationPrice ?? appointment.doctor?.consultationFee ?? 500);
+    const amountInPaise = Math.round(Number.isFinite(priceInRupees) ? priceInRupees * 100 : 500 * 100);
+    if (!Number.isInteger(amountInPaise) || amountInPaise < 100) {
+      return res.status(400).json({ message: 'Invalid consultation amount' });
     }
 
     const razorpay = getRazorpayClient();

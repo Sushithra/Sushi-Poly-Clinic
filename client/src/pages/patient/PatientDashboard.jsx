@@ -534,6 +534,12 @@ export default function PatientDashboard() {
             >
               Profile
             </button>
+            <button
+              onClick={() => navigate('/pharmacy')}
+              className="text-primary-600 font-medium hover:text-primary-700"
+            >
+              Pharmacy
+            </button>
             <button data-testid="logout-button" onClick={handleLogout} className="text-red-500 font-medium hover:text-red-600">Logout</button>
           </div>
         </div>

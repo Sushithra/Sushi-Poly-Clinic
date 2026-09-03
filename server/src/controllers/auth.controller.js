@@ -349,6 +349,36 @@ export const getCurrentUser = async (req, res) => {
   }
 };
 
+// Validate and normalize doctor consultation pricing that arrives as
+// { [specialty]: { voice?: number, video?: number } }. Rejects text/negative
+// values and returns a clean object. The backend is the source of truth for
+// pricing, so it must guard against malformed client input.
+const normalizeConsultationPricing = (pricing) => {
+  if (!pricing || typeof pricing !== 'object' || Array.isArray(pricing)) {
+    throw new Error('consultationPricing must be an object');
+  }
+
+  const result = {};
+  for (const [specialty, types] of Object.entries(pricing)) {
+    if (!types || typeof types !== 'object' || Array.isArray(types)) {
+      throw new Error('Each consultation pricing entry must be an object');
+    }
+
+    const clean = {};
+    for (const type of ['voice', 'video']) {
+      const raw = types?.[type];
+      if (raw === undefined || raw === null || raw === '') continue;
+      const value = Number(raw);
+      if (!Number.isFinite(value) || value < 0) {
+        throw new Error(`${specialty} ${type} price must be a non-negative number`);
+      }
+      clean[type] = value;
+    }
+    result[specialty] = clean;
+  }
+  return result;
+};
+
 // @desc    Update user profile
 // @route   PUT /api/auth/profile
 // @access  Private
@@ -382,7 +412,11 @@ export const updateUserProfile = async (req, res) => {
         user.specializations = specializations;
       }
       if (consultationPricing && typeof consultationPricing === 'object') {
-        user.consultationPricing = consultationPricing;
+        try {
+          user.consultationPricing = normalizeConsultationPricing(consultationPricing);
+        } catch (validationError) {
+          return res.status(400).json({ message: validationError.message });
+        }
       }
       if (experienceYears !== undefined && experienceYears !== '') {
         user.experienceYears = Number(experienceYears);
