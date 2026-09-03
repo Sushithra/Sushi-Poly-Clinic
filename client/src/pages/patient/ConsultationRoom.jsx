@@ -60,6 +60,7 @@ export default function ConsultationRoom() {
   const offerCreatedRef = useRef(false);
   const joinResolvedRef = useRef(false);
   const joinRetryRef = useRef(false);
+  const isInitiatorRef = useRef(false);
 
   useEffect(() => {
     if (!session?.token) {
@@ -104,6 +105,7 @@ export default function ConsultationRoom() {
     setMeetingStatus('idle');
     setParticipantCount(0);
     setIsInitiator(false);
+    isInitiatorRef.current = false;
 
     if (socketRef.current) {
       socketRef.current.emit('leave-room');
@@ -263,12 +265,13 @@ export default function ConsultationRoom() {
             joinResolvedRef.current = true;
             roomIdRef.current = response.roomId;
             setIsInitiator(Boolean(response.isInitiator));
+            isInitiatorRef.current = Boolean(response.isInitiator);
             setParticipantCount(response.participantCount || 1);
             setMeetingStatus(response.participantCount > 1 ? 'connecting' : 'waiting');
 
             ensurePeerConnection();
 
-            if (response.isInitiator && response.participantCount > 1) {
+            if (isInitiatorRef.current && response.participantCount > 1) {
               await createAndSendOffer();
             }
           },
@@ -278,18 +281,19 @@ export default function ConsultationRoom() {
       socket.on('room-ready', async (response) => {
         roomIdRef.current = response.roomId;
         setIsInitiator(Boolean(response.isInitiator));
+        isInitiatorRef.current = Boolean(response.isInitiator);
         setParticipantCount(response.participantCount || 1);
         setMeetingStatus(response.participantCount > 1 ? 'connecting' : 'waiting');
 
         ensurePeerConnection();
-        if (response.isInitiator && response.participantCount > 1) {
+        if (isInitiatorRef.current && response.participantCount > 1) {
           await createAndSendOffer();
         }
       });
 
       socket.on('peer-joined', async (response) => {
         setParticipantCount(response.participantCount || 2);
-        if (isInitiator && !offerCreatedRef.current) {
+        if (isInitiatorRef.current && !offerCreatedRef.current) {
           setMeetingStatus('connecting');
           await createAndSendOffer();
         }
@@ -297,6 +301,7 @@ export default function ConsultationRoom() {
 
       socket.on('room-initiator', async () => {
         setIsInitiator(true);
+        isInitiatorRef.current = true;
         if (joinResolvedRef.current && !offerCreatedRef.current && socketRef.current && roomIdRef.current) {
           await createAndSendOffer();
         }
