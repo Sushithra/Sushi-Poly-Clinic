@@ -1,4 +1,4 @@
-import { Link, Navigate, Route, Routes } from "react-router-dom";
+﻿import { Link, Navigate, Route, Routes } from "react-router-dom";
 import PrimaryButton from "../components/buttons/PrimaryButton.jsx";
 import SecondaryButton from "../components/buttons/SecondaryButton.jsx";
 import AnalyticsCard from "../components/cards/AnalyticsCard.jsx";
@@ -55,7 +55,7 @@ function ShellPage({ title, description }) {
     <MainLayout>
       <ContentContainer>
         <main className="app-shell">
-          <PageScaffold eyebrow="Eclinic Foundation" title={title} description={description}>
+          <PageScaffold eyebrow="Sushi Polyclinic" title={title} description={description}>
             <div className="hero-actions">
               <PrimaryButton>Primary CTA</PrimaryButton>
               <SecondaryButton>Secondary CTA</SecondaryButton>
@@ -105,11 +105,7 @@ export default function AppRouter() {
     <Routes>
       <Route
         path="/"
-        element={
-          <MainLayout showTopNav={false}>
-            <HomePage />
-          </MainLayout>
-        }
+        element={<HomePage />}
       />
       <Route
         path="/login"
@@ -147,7 +143,7 @@ export default function AppRouter() {
         path="/about"
         element={
           <ShellPage
-            title="About Eclinic"
+            title="About Sushi Polyclinic"
             description="Architecture-first healthcare platform foundation for patient, doctor, pharmacy, payment, consultation, and admin workflows."
           />
         }

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PublicLayout Component
  * 
  * Responsive layout for unauthenticated public pages
@@ -26,7 +26,7 @@ export default function PublicLayout({ children }) {
             {/* Logo - Responsive sizing */}
             <div className="flex-shrink-0">
               <div className="text-2xl md:text-3xl font-bold text-primary-500">
-                eCLINIC
+                Sushi Polyclinic
               </div>
             </div>
 
@@ -111,7 +111,7 @@ export default function PublicLayout({ children }) {
           <div className="grid grid-1col sm:grid-2col md:grid-4col gap-8 mb-8">
             {/* About Section */}
             <div>
-              <h4 className="text-lg font-semibold mb-4 text-primary-400">About eCLINIC</h4>
+              <h4 className="text-lg font-semibold mb-4 text-primary-400">About Sushi Polyclinic</h4>
               <p className="text-sm text-neutral-300 leading-relaxed">
                 Healthcare reimagined for the digital age. Connect with doctors online, anytime, anywhere.
               </p>
@@ -142,7 +142,7 @@ export default function PublicLayout({ children }) {
             <div>
               <h4 className="text-lg font-semibold mb-4 text-primary-400">Contact</h4>
               <ul className="space-y-2 text-sm">
-                <li className="text-neutral-300">support@eclinic.com</li>
+                <li className="text-neutral-300">support@sushipolyclinic.com</li>
                 <li className="text-neutral-300">+1 (800) CLINIC-1</li>
                 <li className="text-neutral-300">24/7 Customer Support</li>
               </ul>
@@ -152,7 +152,7 @@ export default function PublicLayout({ children }) {
           {/* Footer Bottom */}
           <div className="border-t border-neutral-800 pt-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <p className="text-sm text-neutral-400">
-              © {new Date().getFullYear()} eCLINIC. All rights reserved.
+              © {new Date().getFullYear()} Sushi Polyclinic. All rights reserved.
             </p>
             <div className="flex gap-4">
               <a href="#" className="text-neutral-400 hover:text-primary-400 transition-colors">

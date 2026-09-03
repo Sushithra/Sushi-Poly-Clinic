@@ -1,4 +1,4 @@
-// Shared header placeholder.
+﻿// Shared header placeholder.
 // Future responsibility: provide adaptive top navigation with mobile menu entry,
 // tablet-safe spacing, and desktop expansion without increasing interaction complexity.
 
@@ -8,7 +8,7 @@ export default function Header() {
   return (
     <header className="ui-header">
       <Link to="/" className="ui-brand">
-        Eclinic
+        Sushi Polyclinic
       </Link>
       <nav className="ui-header-links" aria-label="Primary">
         <Link to="/doctors">Doctors</Link>

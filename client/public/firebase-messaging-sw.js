@@ -1,4 +1,4 @@
-importScripts('https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js');
+﻿importScripts('https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.13.2/firebase-messaging-compat.js');
 
 const configFromSearch = () => {
@@ -21,7 +21,7 @@ if (config.apiKey && config.authDomain && config.projectId && config.storageBuck
   const messaging = firebase.messaging();
 
   messaging.onBackgroundMessage((payload) => {
-    const title = payload?.notification?.title || 'Eclinic reminder';
+    const title = payload?.notification?.title || 'Sushi Polyclinic reminder';
     const options = {
       body: payload?.notification?.body || 'You have a new appointment update.',
       data: payload?.data || {},

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * AuthLayout Component
  * 
  * Responsive layout for authentication pages (login, signup, password reset)
@@ -22,7 +22,7 @@ export default function AuthLayout({ children, title, description, image }) {
       <div className="absolute top-0 left-0 right-0 z-10 p-4 md:p-8">
         <div className="container-md mx-auto">
           <a href="/" className="text-2xl md:text-3xl font-bold text-primary-500">
-            eCLINIC
+            Sushi Polyclinic
           </a>
         </div>
       </div>

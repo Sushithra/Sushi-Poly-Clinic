@@ -1,4 +1,4 @@
-/**
+﻿/**
  * MainLayout Component
  * 
  * Primary responsive layout for authenticated users
@@ -46,7 +46,7 @@ export default function MainLayout({ children, showSidebar = false, sidebarConte
           >
             {/* Sidebar Header */}
             <div className="flex items-center justify-between h-16 md:h-20 px-4 md:px-6 border-b border-neutral-200">
-              <h2 className="text-2xl font-bold text-green-700">Sushi Poly Clinic</h2>
+              <h2 className="text-2xl font-bold text-green-700">Sushi Polyclinic</h2>
               <button
                 className="md:hidden p-2 hover:bg-neutral-100 rounded-lg transition-colors"
                 onClick={() => setSidebarOpen(false)}
@@ -109,7 +109,7 @@ export default function MainLayout({ children, showSidebar = false, sidebarConte
             {/* Mobile Title (visible only on small screens) */}
             <div className="flex-1 md:hidden">
               <h1 className="text-xl font-semibold text-green-700">
-                Sushi Poly Clinic
+                Sushi Polyclinic
               </h1>
             </div>
 

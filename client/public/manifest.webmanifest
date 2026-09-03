@@ -1,6 +1,6 @@
 {
-  "name": "Sushi Poly Clinic",
-  "short_name": "Sushi Poly Clinic",
+  "name": "Sushi Polyclinic",
+  "short_name": "Sushi Polyclinic",
   "description": "Progressive telemedicine web app for patients and doctors.",
   "start_url": "/",
   "scope": "/",

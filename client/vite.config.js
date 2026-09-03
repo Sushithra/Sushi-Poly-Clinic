@@ -10,8 +10,8 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['icons/icon-192.svg', 'icons/icon-512.svg', 'icons/icon-maskable.svg'],
       manifest: {
-        name: 'Sushi Poly Clinic',
-        short_name: 'Sushi Poly Clinic',
+        name: 'Sushi Polyclinic',
+        short_name: 'Sushi Polyclinic',
         description: 'Progressive telemedicine web app for patients and doctors.',
         start_url: '/',
         scope: '/',

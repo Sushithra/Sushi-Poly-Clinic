@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+﻿import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { resolveRecordUrl } from '../../utils/recordUrl.js';
@@ -432,7 +432,7 @@ export default function PatientDashboard() {
         amount: orderData.amount,
         currency: orderData.currency,
         order_id: orderData.order_id,
-        name: 'Eclinic',
+        name: 'Sushi Polyclinic',
         description: `Consultation payment for ${paymentTarget.doctorName || 'Doctor'}`,
         prefill: {
           name: userInfo?.name || paymentTarget.patientName || '',
@@ -526,7 +526,7 @@ export default function PatientDashboard() {
       {/* Header */}
       <div className="bg-white border-b border-neutral-200 p-6">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-primary-600">Eclinic Patient</h1>
+          <h1 className="text-2xl font-bold text-primary-600">Sushi Polyclinic</h1>
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/patient/profile')}
@@ -553,6 +553,63 @@ export default function PatientDashboard() {
               {paymentNotice}
             </div>
           )}
+
+          {/* Primary Actions */}
+          <div className="mb-12">
+            <div className="rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 p-6 md:p-8 text-white shadow-lg mb-6">
+              <h2 className="text-2xl md:text-3xl font-bold mb-1">Welcome back</h2>
+              <p className="text-primary-100">How can we help you today?</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+              <button
+                onClick={() => navigate('/doctors')}
+                data-testid="home-action-book"
+                className="group flex flex-col items-center gap-3 p-6 rounded-2xl bg-white border-2 border-neutral-200 hover:border-primary-400 hover:shadow-lg transition-transform hover:scale-[1.02] text-center"
+              >
+                <div className="w-14 h-14 rounded-full bg-primary-50 flex items-center justify-center text-primary-600 group-hover:bg-primary-100">
+                  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m-7-7h14" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-neutral-900">Book</p>
+                  <p className="text-sm text-neutral-500">Schedule a consultation</p>
+                </div>
+              </button>
+
+              <button
+                onClick={() => navigate('/pharmacy')}
+                data-testid="home-action-pharmacy"
+                className="group flex flex-col items-center gap-3 p-6 rounded-2xl bg-white border-2 border-neutral-200 hover:border-green-400 hover:shadow-lg transition-transform hover:scale-[1.02] text-center"
+              >
+                <div className="w-14 h-14 rounded-full bg-green-50 flex items-center justify-center text-green-600 group-hover:bg-green-100">
+                  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v18M3 9h18M9 3h6m-6 6V9m6 0v6m-6-6v6m6 0H9m6 0v3" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-neutral-900">Pharmacy</p>
+                  <p className="text-sm text-neutral-500">Order medicines</p>
+                </div>
+              </button>
+
+              <button
+                onClick={() => navigate('/pharmacy', { state: { openOrders: true } })}
+                data-testid="home-action-my-orders"
+                className="group flex flex-col items-center gap-3 p-6 rounded-2xl bg-white border-2 border-neutral-200 hover:border-blue-400 hover:shadow-lg transition-transform hover:scale-[1.02] text-center"
+              >
+                <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100">
+                  <svg className="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-neutral-900">View My Orders</p>
+                  <p className="text-sm text-neutral-500">Track pharmacy orders</p>
+                </div>
+              </button>
+            </div>
+          </div>
 
           <div className="mb-12">
             <h2 className="text-3xl font-bold text-neutral-900 mb-2">My Appointments</h2>
@@ -628,7 +685,7 @@ export default function PatientDashboard() {
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-neutral-900">{app.doctorName || app.doctor?.name || 'Doctor'}</h4>
                         <p className="text-sm text-neutral-600">{app.doctorSpecialty || app.doctor?.specialty || 'Specialist'}</p>
-                        <p className="text-sm text-neutral-500">{new Date(app.date).toLocaleDateString()} at {app.timeSlot} • {app.consultationType || 'video'}</p>
+                        <p className="text-sm text-neutral-500">{new Date(app.date).toLocaleDateString()} at {app.timeSlot} â€¢ {app.consultationType || 'video'}</p>
                       </div>
                       <div className="text-right ml-4 flex flex-col items-end gap-2">
                         <span className={`px-3 py-1 text-xs font-medium rounded-full ${
@@ -795,7 +852,7 @@ export default function PatientDashboard() {
                     className="rounded-full px-3 py-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
                     aria-label="Close preview"
                   >
-                    ×
+                    Ã—
                   </button>
                 </div>
                 {previewRecordError ? (
@@ -867,14 +924,14 @@ export default function PatientDashboard() {
                 className="rounded-full px-3 py-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
                 aria-label="Close payment dialog"
               >
-                ×
+                Ã—
               </button>
             </div>
 
             <div className="mt-6 rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
               <div className="flex items-center justify-between gap-4">
                 <span className="text-sm text-neutral-600">Consultation fee</span>
-                <span className="text-2xl font-bold text-neutral-900">₹{paymentTarget.consultationPrice ?? paymentTarget.doctor?.consultationFee ?? 500}</span>
+                <span className="text-2xl font-bold text-neutral-900">â‚¹{paymentTarget.consultationPrice ?? paymentTarget.doctor?.consultationFee ?? 500}</span>
               </div>
               <p className="mt-3 text-sm text-neutral-500">
                 After payment, you will return to this home screen. When it is time for your appointment, a join button will appear here.
