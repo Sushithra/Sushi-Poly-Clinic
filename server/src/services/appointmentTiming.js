@@ -36,8 +36,20 @@ export const parseAppointmentDateTime = (dateValue, timeSlot) => {
       return null;
     }
 
-    parsedDate.setHours(timeParts.hours, timeParts.minutes, 0, 0);
-    return parsedDate;
+    // The stored `date` represents the wall-clock calendar day (UTC midnight).
+    // Treat the date + timeSlot as Asia/Kolkata wall-clock time and convert to the
+    // correct UTC instant regardless of the server's own timezone (IST is UTC+5:30).
+    return new Date(
+      Date.UTC(
+        parsedDate.getUTCFullYear(),
+        parsedDate.getUTCMonth(),
+        parsedDate.getUTCDate(),
+        timeParts.hours,
+        timeParts.minutes,
+        0,
+        0,
+      ) - KOLKATA_OFFSET_MS,
+    );
   }
 
   const text = String(dateValue || '').trim();
