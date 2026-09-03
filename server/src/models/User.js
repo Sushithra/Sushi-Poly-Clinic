@@ -19,6 +19,16 @@ const userSchema = new mongoose.Schema({
   profilePicture: { type: String, default: "" },
   phone: { type: String, default: "" },
   pushTokens: { type: [String], default: [] },
+  addresses: [{
+    fullName: { type: String, default: '' },
+    phone: { type: String, default: '' },
+    addressLine1: { type: String, default: '' },
+    addressLine2: { type: String, default: '' },
+    city: { type: String, default: '' },
+    state: { type: String, default: '' },
+    pincode: { type: String, default: '' },
+    isDefault: { type: Boolean, default: false }
+  }],
 }, { timestamps: true });
 
 // Password hashing middleware

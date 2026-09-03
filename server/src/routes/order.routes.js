@@ -1,22 +1,24 @@
 import express from 'express';
-import { createOrder, getMyOrders, getAllOrders, getOrderById, updateOrderStatus } from '../controllers/order.controller.js';
-import { protect } from '../middleware/auth.middleware.js';
+import { getMyOrders, getAllOrders, getOrderById, updateOrderStatus } from '../controllers/order.controller.js';
+import { createRazorpayOrder, verifyPayment } from '../controllers/orderPayment.controller.js';
+import { protect, authorizeRoles } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
 router.use(protect);
 
-router.route('/')
-  .post(createOrder)
-  .get(getMyOrders);
+router.get('/', getMyOrders);
+
+router.post('/create-razorpay-order', createRazorpayOrder);
+router.post('/verify-payment', verifyPayment);
 
 router.route('/all')
-  .get(getAllOrders);
+  .get(authorizeRoles('doctor', 'admin'), getAllOrders);
 
 router.route('/:id')
   .get(getOrderById);
 
 router.route('/:id/status')
-  .patch(updateOrderStatus);
+  .patch(authorizeRoles('doctor', 'admin'), updateOrderStatus);
 
 export default router;

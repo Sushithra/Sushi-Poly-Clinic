@@ -22,7 +22,15 @@ const orderSchema = new mongoose.Schema({
     pincode: { type: String, required: true }
   },
   totalAmount: { type: Number, required: true },
-  paymentMethod: { type: String, enum: ['cod', 'online'], default: 'cod' },
+  paymentMethod: { type: String, enum: ['razorpay'], default: 'razorpay' },
+  paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
+  paymentReference: { type: String, default: '' },
+  paymentCompletedAt: { type: Date, default: null },
+  paymentFingerprint: { type: String, default: '' },
+  razorpayOrderId: { type: String, default: '' },
+  razorpayPaymentId: { type: String, default: '' },
+  razorpaySignature: { type: String, default: '' },
+  razorpayPaymentStatus: { type: String, default: '' },
   paymentResult: {
     id: String,
     status: String,

@@ -9,6 +9,36 @@ const resolveImage = (product) => {
   return '';
 };
 
+let razorpayScriptPromise = null;
+
+const loadRazorpayScript = () => {
+  if (window.Razorpay) {
+    return Promise.resolve(true);
+  }
+
+  if (razorpayScriptPromise) {
+    return razorpayScriptPromise;
+  }
+
+  razorpayScriptPromise = new Promise((resolve) => {
+    const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve(true), { once: true });
+      existingScript.addEventListener('error', () => resolve(false), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
+  return razorpayScriptPromise;
+};
+
 export default function PharmacyPage() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -21,9 +51,17 @@ export default function PharmacyPage() {
   const [orders, setOrders] = useState([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
   const [checkout, setCheckout] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState('address'); // 'address' | 'review'
   const [placedOrder, setPlacedOrder] = useState(null);
   const [cartLoading, setCartLoading] = useState(false);
   const [busyProductId, setBusyProductId] = useState(null);
+  const [addresses, setAddresses] = useState([]);
+  const [savedAddressId, setSavedAddressId] = useState('');
+  const [saveNewAddress, setSaveNewAddress] = useState(false);
+  const [editingAddressId, setEditingAddressId] = useState('');
+  const [placesaving, setPlacesaving] = useState(false);
+  const [razorpayReady, setRazorpayReady] = useState(false);
+  const [paymentError, setPaymentError] = useState('');
   const [shipping, setShipping] = useState({
     fullName: '',
     phone: '',
@@ -77,10 +115,46 @@ export default function PharmacyPage() {
   }, [userInfo?.token]);
 
   useEffect(() => {
+    if (userInfo?.token) {
+      fetchAddresses();
+    }
+  }, [userInfo?.token]);
+
+  useEffect(() => {
+    let mounted = true;
+    loadRazorpayScript().then((loaded) => {
+      if (mounted) setRazorpayReady(loaded);
+    });
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
     if (ordersView && userInfo?.token) {
       fetchOrders();
     }
   }, [ordersView, userInfo?.token]);
+
+  const fetchAddresses = async () => {
+    try {
+      const { data } = await axios.get(withApiBase('/api/addresses'), { headers: authHeaders });
+      setAddresses(Array.isArray(data) ? data : []);
+      const dflt = (Array.isArray(data) ? data : []).find((a) => a.isDefault);
+      if (dflt) {
+        setSavedAddressId(dflt._id);
+        setShipping({
+          fullName: dflt.fullName || '',
+          phone: dflt.phone || '',
+          addressLine1: dflt.addressLine1 || '',
+          addressLine2: dflt.addressLine2 || '',
+          city: dflt.city || '',
+          state: dflt.state || '',
+          pincode: dflt.pincode || ''
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch addresses', error);
+    }
+  };
 
   const fetchCart = async () => {
     try {
@@ -157,24 +231,151 @@ export default function PharmacyPage() {
     }
   };
 
-  const handlePlaceOrder = async (e) => {
-    e.preventDefault();
+  const selectSavedAddress = (addr) => {
+    setSavedAddressId(addr._id);
+    setEditingAddressId('');
+    setShipping({
+      fullName: addr.fullName || '',
+      phone: addr.phone || '',
+      addressLine1: addr.addressLine1 || '',
+      addressLine2: addr.addressLine2 || '',
+      city: addr.city || '',
+      state: addr.state || '',
+      pincode: addr.pincode || ''
+    });
+    if (checkoutStep === 'review') setCheckoutStep('address');
+  };
+
+  const startCheckout = () => {
+    setCheckout(true);
+    setCheckoutStep('address');
+  };
+
+  const handleDeleteAddress = async (id) => {
+    if (!window.confirm('Delete this saved address?')) return;
     try {
-      setCartLoading(true);
-      const { data } = await axios.post(
-        withApiBase('/api/orders'),
-        { shippingAddress: shipping, paymentMethod: 'cod' },
+      await axios.delete(withApiBase(`/api/addresses/${id}`), { headers: authHeaders });
+      const remaining = addresses.filter((a) => a._id !== id);
+      setAddresses(remaining);
+      if (savedAddressId === id) setSavedAddressId('');
+      fetchAddresses();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to delete address');
+    }
+  };
+
+  const handleSetDefaultAddress = async (id) => {
+    const addr = addresses.find((a) => a._id === id);
+    if (!addr) return;
+    try {
+      await axios.put(withApiBase(`/api/addresses/${id}`), { ...addr, isDefault: true }, { headers: authHeaders });
+      fetchAddresses();
+    } catch (error) {
+      alert(error.response?.data?.message || 'Failed to set default address');
+    }
+  };
+
+  const saveAddressIfNeeded = async (orderAddress) => {
+    if (saveNewAddress || editingAddressId || (savedAddressId && shipping.addressLine1 && !addresses.some((a) => a._id === savedAddressId && a.addressLine1 === shipping.addressLine1))) {
+      if (editingAddressId) {
+        await axios.put(
+          withApiBase(`/api/addresses/${editingAddressId}`),
+          orderAddress,
+          { headers: authHeaders }
+        );
+      } else {
+        await axios.post(
+          withApiBase('/api/addresses'),
+          orderAddress,
+          { headers: authHeaders }
+        );
+      }
+      fetchAddresses();
+    }
+  };
+
+  const handlePayWithRazorpay = async () => {
+    if (!userInfo?.token) {
+      alert('Please sign in to continue.');
+      return;
+    }
+
+    const scriptLoaded = razorpayReady || (await loadRazorpayScript());
+    if (!scriptLoaded || !window.Razorpay) {
+      setPaymentError('Razorpay checkout failed to load. Please refresh and try again.');
+      return;
+    }
+
+    const orderAddress = { ...shipping };
+
+    try {
+      setPlacesaving(true);
+      setPaymentError('');
+
+      await saveAddressIfNeeded(orderAddress);
+
+      const { data: orderData } = await axios.post(
+        withApiBase('/api/orders/create-razorpay-order'),
+        { shippingAddress: orderAddress, currency: 'INR', receipt: `pharmacy_${Date.now()}` },
         { headers: authHeaders }
       );
-      setPlacedOrder(data);
-      setCart({ items: [], totalAmount: 0 });
-      setCheckout(false);
-      setCartOpen(false);
-      showToast('Order placed successfully!');
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'Eclinic Pharmacy',
+        description: 'Medicine order payment',
+        order_id: orderData.order_id,
+        prefill: {
+          name: userInfo.name || shipping.fullName || '',
+          email: userInfo.email || '',
+          contact: shipping.phone || '',
+        },
+        theme: { color: '#06b6d4' },
+        handler: async (response) => {
+          try {
+            const { data } = await axios.post(
+              withApiBase('/api/orders/verify-payment'),
+              {
+                orderId: orderData.orderId,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              { headers: authHeaders }
+            );
+            setPlacedOrder(data.order);
+            setCart({ items: [], totalAmount: 0 });
+            setCheckout(false);
+            setCartOpen(false);
+            setCheckoutStep('address');
+            setEditingAddressId('');
+            setSaveNewAddress(false);
+            fetchOrders();
+            fetchCart();
+            showToast('Payment successful! Order placed.');
+          } catch (verifyError) {
+            setPaymentError(verifyError.response?.data?.message || 'Payment verification failed. Please contact support.');
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setPaymentError('Payment was cancelled before completion. Your cart is still intact.');
+          },
+        },
+        notes: { orderId: orderData.orderId },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.on('payment.failed', (response) => {
+        setPaymentError(response?.error?.description || 'Payment failed. Please try again.');
+      });
+      razorpay.open();
     } catch (error) {
-      alert(error.response?.data?.message || 'Failed to place order');
+      setPaymentError(error.response?.data?.message || 'Payment could not be completed');
     } finally {
-      setCartLoading(false);
+      setPlacesaving(false);
     }
   };
 
@@ -275,6 +476,24 @@ export default function PharmacyPage() {
                             <span className="font-semibold text-neutral-900">₹{item.price * item.quantity}</span>
                           </div>
                         ))}
+                      </div>
+                      <div className="flex justify-between pt-2 border-t border-neutral-100 mt-1 text-sm">
+                        <span className="font-medium text-neutral-600">Total</span>
+                        <span className="font-semibold text-neutral-900">₹{order.totalAmount}</span>
+                      </div>
+                      <div className="pt-2 mt-1 space-y-1 text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-neutral-600">Payment:</span>
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-semibold uppercase ${
+                            order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {order.paymentStatus || 'pending'}
+                          </span>
+                          <span className="text-neutral-500">· Method: Razorpay</span>
+                        </div>
+                        {order.shippingAddress && (
+                          <p className="text-neutral-600">Deliver to: {order.shippingAddress.fullName}, {order.shippingAddress.addressLine1}{order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ''}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.pincode}</p>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -444,27 +663,106 @@ export default function PharmacyPage() {
                   </div>
                   {!checkout ? (
                     <button
-                      onClick={() => setCheckout(true)}
+                      onClick={startCheckout}
                       className="w-full py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition"
                     >
                       Checkout
                     </button>
                   ) : (
-                    <form onSubmit={handlePlaceOrder} className="space-y-3">
-                      <p className="text-sm font-semibold text-neutral-700">Shipping Address</p>
-                      <input required placeholder="Full name" value={shipping.fullName} onChange={(e) => setShipping({ ...shipping, fullName: e.target.value })} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" />
-                      <input required placeholder="Phone number" value={shipping.phone} onChange={(e) => setShipping({ ...shipping, phone: e.target.value })} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" />
-                      <input required placeholder="Address line 1" value={shipping.addressLine1} onChange={(e) => setShipping({ ...shipping, addressLine1: e.target.value })} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" />
-                      <input placeholder="Address line 2" value={shipping.addressLine2} onChange={(e) => setShipping({ ...shipping, addressLine2: e.target.value })} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" />
-                      <div className="grid grid-cols-2 gap-3">
-                        <input required placeholder="City" value={shipping.city} onChange={(e) => setShipping({ ...shipping, city: e.target.value })} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" />
-                        <input required placeholder="State" value={shipping.state} onChange={(e) => setShipping({ ...shipping, state: e.target.value })} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" />
-                      </div>
-                      <input required placeholder="Pincode" value={shipping.pincode} onChange={(e) => setShipping({ ...shipping, pincode: e.target.value })} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" />
-                      <button type="submit" disabled={cartLoading} className="w-full py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition disabled:opacity-50">
-                        {cartLoading ? 'Placing order...' : 'Place Order (COD)'}
-                      </button>
-                    </form>
+                    <>
+                      {checkoutStep === 'address' ? (
+                        <div className="space-y-3">
+                          <p className="text-sm font-semibold text-neutral-700">Select Delivery Address</p>
+                          {addresses.length > 0 && (
+                            <div className="space-y-2 max-h-40 overflow-y-auto">
+                              {addresses.map((addr) => (
+                                <div key={addr._id}
+                                  className={`border rounded-lg p-3 cursor-pointer text-sm transition ${
+                                    savedAddressId === addr._id ? 'border-primary-600 bg-primary-50' : 'border-neutral-300 hover:border-primary-400'
+                                  }`}
+                                >
+                                  <div onClick={() => selectSavedAddress(addr)}>
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-semibold text-neutral-800">{addr.fullName}</span>
+                                      {addr.isDefault && <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full">Default</span>}
+                                    </div>
+                                    <p className="text-neutral-600 mt-1">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}</p>
+                                    <p className="text-neutral-600">{addr.city}, {addr.state} {addr.pincode} · {addr.phone}</p>
+                                  </div>
+                                  <div className="flex items-center gap-3 mt-2 text-xs">
+                                    <button onClick={() => selectSavedAddress(addr)} className="text-primary-600 hover:text-primary-700 font-medium">Use</button>
+                                    <button onClick={() => { setShipping({
+                                      fullName: addr.fullName || '', phone: addr.phone || '', addressLine1: addr.addressLine1 || '',
+                                      addressLine2: addr.addressLine2 || '', city: addr.city || '', state: addr.state || '', pincode: addr.pincode || ''
+                                    }); setSaveNewAddress(true); setEditingAddressId(addr._id); setSavedAddressId(''); }} className="text-neutral-600 hover:text-neutral-800 font-medium">Edit</button>
+                                    {!addr.isDefault && <button onClick={() => handleSetDefaultAddress(addr._id)} className="text-neutral-600 hover:text-neutral-800 font-medium">Set Default</button>}
+                                    <button onClick={() => handleDeleteAddress(addr._id)} className="text-red-500 hover:text-red-700 font-medium">Delete</button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          <div className="text-sm text-neutral-500">{addresses.length > 0 ? 'Or add a new address:' : 'No saved addresses yet. Add one:'}</div>
+                          <input placeholder="Full name" value={shipping.fullName} onChange={(e) => { setShipping({ ...shipping, fullName: e.target.value }); setSavedAddressId(''); setEditingAddressId(''); }} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" required />
+                          <input placeholder="Phone number" value={shipping.phone} onChange={(e) => { setShipping({ ...shipping, phone: e.target.value }); setSavedAddressId(''); setEditingAddressId(''); }} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" required />
+                          <input placeholder="Address line 1" value={shipping.addressLine1} onChange={(e) => { setShipping({ ...shipping, addressLine1: e.target.value }); setSavedAddressId(''); setEditingAddressId(''); }} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" required />
+                          <input placeholder="Address line 2" value={shipping.addressLine2} onChange={(e) => { setShipping({ ...shipping, addressLine2: e.target.value }); setSavedAddressId(''); setEditingAddressId(''); }} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" />
+                          <div className="grid grid-cols-2 gap-3">
+                            <input placeholder="City" value={shipping.city} onChange={(e) => { setShipping({ ...shipping, city: e.target.value }); setSavedAddressId(''); setEditingAddressId(''); }} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" required />
+                            <input placeholder="State" value={shipping.state} onChange={(e) => { setShipping({ ...shipping, state: e.target.value }); setSavedAddressId(''); setEditingAddressId(''); }} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" required />
+                          </div>
+                          <input placeholder="Pincode" value={shipping.pincode} onChange={(e) => { setShipping({ ...shipping, pincode: e.target.value }); setSavedAddressId(''); setEditingAddressId(''); }} className="w-full p-2 border border-neutral-300 rounded-lg text-sm" required />
+                          <label className="flex items-center gap-2 text-sm text-neutral-600">
+                            <input type="checkbox" checked={saveNewAddress} onChange={(e) => setSaveNewAddress(e.target.checked)} />
+                            Save this address for future orders
+                          </label>
+                          <button
+                            onClick={() => {
+                              if (!shipping.fullName || !shipping.phone || !shipping.addressLine1 || !shipping.city || !shipping.state || !shipping.pincode) {
+                                alert('Please complete all required address fields.');
+                                return;
+                              }
+                              setCheckoutStep('review');
+                            }}
+                            className="w-full py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition"
+                          >
+                            Continue to Review
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          <p className="text-sm font-semibold text-neutral-700">Review Your Order</p>
+                          <div className="rounded-lg border border-neutral-200 p-3 text-sm">
+                            <p className="font-semibold text-neutral-800">{shipping.fullName}</p>
+                            <p className="text-neutral-600">{shipping.addressLine1}{shipping.addressLine2 ? `, ${shipping.addressLine2}` : ''}</p>
+                            <p className="text-neutral-600">{shipping.city}, {shipping.state} {shipping.pincode}</p>
+                            <p className="text-neutral-600">{shipping.phone}</p>
+                          </div>
+                          <div className="rounded-lg border border-neutral-200 p-3">
+                            <p className="text-sm font-semibold text-neutral-700 mb-2">Payment Method</p>
+                            <div className="flex items-center gap-2 border border-primary-200 bg-primary-50 rounded-lg px-3 py-2">
+                              <span className="text-lg">💳</span>
+                              <span className="text-sm font-medium text-neutral-800">Pay Online with Razorpay</span>
+                            </div>
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="font-medium text-neutral-600">Total</span>
+                            <span className="text-lg font-bold text-neutral-900">₹{cart.totalAmount}</span>
+                          </div>
+                          {paymentError && (
+                            <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2">
+                              {paymentError}
+                            </div>
+                          )}
+                          <button onClick={() => { setPaymentError(''); setCheckoutStep('address'); }} className="w-full py-2 border border-neutral-300 text-neutral-600 font-semibold rounded-xl hover:bg-neutral-50 transition">
+                            ← Change Address
+                          </button>
+                          <button onClick={handlePayWithRazorpay} disabled={placesaving} className="w-full py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition disabled:opacity-50">
+                            {placesaving ? 'Opening Razorpay...' : `Pay ₹${cart.totalAmount} with Razorpay`}
+                          </button>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </>

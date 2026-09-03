@@ -729,11 +729,17 @@ export default function DoctorDashboard() {
                                 <span className="ml-3 text-sm text-neutral-500">{order.shippingAddress?.fullName} · ₹{order.totalAmount}</span>
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-semibold uppercase tracking-wide">{order.orderStatus}</span>
+                                <div className="text-right">
+                                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${order.paymentStatus === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                                    Payment: {order.paymentStatus}
+                                  </span>
+                                  <span className="block text-xs text-neutral-500 mt-0.5">Method: {order.paymentMethod || 'razorpay'}</span>
+                                </div>
                                 <select
                                   value={order.orderStatus}
                                   onChange={(e) => handleUpdateOrderStatus(order._id, e.target.value)}
                                   className="p-1 border border-neutral-300 rounded-lg text-sm"
+                                  title="Delivery/order status"
                                 >
                                   <option value="pending">Pending</option>
                                   <option value="confirmed">Confirmed</option>
