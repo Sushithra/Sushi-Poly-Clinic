@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { resolveRecordUrl } from '../../utils/recordUrl.js';
@@ -104,13 +104,48 @@ const getConsultationWindow = (dateValue, timeSlot, openBeforeMinutes = 5, close
 };
 
 const getRazorpayPublicKey = () => import.meta.env.VITE_RAZORPAY_KEY_ID || '';
+// Payment stays open through the end of the appointment's calendar day in IST
+// (Asia/Kolkata). The stored date is the wall-clock day (UTC midnight), so the
+// deadline is midnight IST of the following day (IST is UTC+5:30).
+const getPaymentDeadline = (dateValue) => {
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return null;
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1, 0, 0, 0, 0) - KOLKATA_OFFSET_MS);
+};
 const isAppointmentPaymentExpired = (app, nowTimestamp = Date.now()) => {
   if (!app || app.paymentStatus === 'paid' || app.status === 'cancelled' || app.status === 'completed') {
     return false;
   }
 
-  const windowInfo = getConsultationWindow(app.date, app.timeSlot, 0, 240, nowTimestamp);
-  return Boolean(windowInfo.endsAt && nowTimestamp > windowInfo.endsAt.getTime());
+  // Prefer the backend's authoritative flag when provided.
+  if (typeof app.paymentDeadlinePassed === 'boolean') {
+    return app.paymentDeadlinePassed;
+  }
+
+  const deadline = getPaymentDeadline(app.date);
+  return Boolean(deadline && nowTimestamp > deadline.getTime());
+};
+
+// Resolve the URL used to display/open a patient-record file.
+// - Cloudinary (or any absolute/CDN URL) is publicly servable by the provider,
+//   so the stored URL can be used directly.
+// - Locally-stored files are served through the authenticated
+//   GET /api/patient-records/:id/file endpoint. Because an <img src> cannot send
+//   an Authorization header, the file is fetched with the token and exposed as a
+//   Blob object URL.
+const fetchRecordDisplayUrl = async (record, token) => {
+  if (!record) return '';
+  if (record.storageType === 'cloudinary' || /^https?:\/\//i.test(String(record.fileUrl || ''))) {
+    return resolveRecordUrl(record.fileUrl);
+  }
+  const response = await axios.get(withApiBase(`/api/patient-records/${record._id}/file`), {
+    headers: { Authorization: `Bearer ${token}` },
+    responseType: 'blob',
+  });
+  if (response.status !== 200) {
+    throw new Error('The file could not be loaded from the server.');
+  }
+  return URL.createObjectURL(response.data);
 };
 
 export default function PatientDashboard() {
@@ -127,6 +162,9 @@ export default function PatientDashboard() {
   const [recordError, setRecordError] = useState('');
   const [previewRecord, setPreviewRecord] = useState(null);
   const [previewRecordError, setPreviewRecordError] = useState('');
+  const [previewFileUrl, setPreviewFileUrl] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const previewBlobUrlRef = useRef('');
   const [razorpayReady, setRazorpayReady] = useState(false);
   const [now, setNow] = useState(Date.now());
   const [userInfo] = useState(() => JSON.parse(localStorage.getItem('userInfo')));
@@ -234,6 +272,10 @@ export default function PatientDashboard() {
     appointments.forEach((app) => {
       if (app.status === 'completed' || app.status === 'cancelled') {
         previous.push(app);
+      } else if (isAppointmentPaymentExpired(app, now)) {
+        // Unpaid appointment whose payment deadline (midnight IST of the
+        // appointment date) has passed: it is no longer active and is not
+        // attended history. Do not display it in either tab.
       } else {
         current.push(app);
       }
@@ -440,11 +482,43 @@ export default function PatientDashboard() {
     return Boolean(windowInfo.startsAt && now >= windowInfo.startsAt.getTime());
   };
 
-  const isExpiredUnpaidAppointment = (app) => isAppointmentPaymentExpired(app, now);
+  // Load the preview file asynchronously (authenticated) whenever the previewed
+  // record changes. Locally-stored files are fetched as blobs and exposed via an
+  // object URL; Cloudinary/CDN files are used directly.
+  useEffect(() => {
+    let cancelled = false;
+
+    if (previewBlobUrlRef.current) {
+      URL.revokeObjectURL(previewBlobUrlRef.current);
+      previewBlobUrlRef.current = '';
+    }
+    setPreviewFileUrl('');
+    setPreviewRecordError('');
+    setPreviewLoading(false);
+
+    if (!previewRecord || !userInfo?.token) return;
+    setPreviewLoading(true);
+
+    fetchRecordDisplayUrl(previewRecord, userInfo.token)
+      .then((url) => {
+        if (cancelled) return;
+        if (url.startsWith('blob:')) previewBlobUrlRef.current = url;
+        setPreviewFileUrl(url);
+        setPreviewLoading(false);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setPreviewRecordError(err?.message || 'The file could not be loaded from the server.');
+        setPreviewLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [previewRecord, userInfo]);
 
   if (!userInfo) return null;
 
-  const previewFileUrl = resolveRecordUrl(previewRecord?.fileUrl);
   const paymentWindowExpired = isAppointmentPaymentExpired(paymentTarget, now);
 
   return (
@@ -556,16 +630,12 @@ export default function PatientDashboard() {
                             ? 'bg-violet-100 text-violet-700'
                             : app.paymentStatus === 'paid'
                               ? 'bg-green-100 text-green-700'
-                              : isExpiredUnpaidAppointment(app)
-                                ? 'bg-red-100 text-red-700'
                               : 'bg-yellow-100 text-yellow-700'
                         }`}>
                           {app.status === 'completed'
                             ? 'Completed'
                             : app.paymentStatus === 'paid'
                               ? 'Paid'
-                              : isExpiredUnpaidAppointment(app)
-                                ? 'Time expired'
                               : app.status === 'pending' || app.status === 'requested'
                                 ? 'Waiting for confirmation'
                                 : 'Payment pending'}
@@ -589,13 +659,6 @@ export default function PatientDashboard() {
                           <span className="px-4 py-2 text-sm font-semibold rounded-xl bg-sky-100 text-sky-700">
                             Waiting for meeting
                           </span>
-                        ) : isExpiredUnpaidAppointment(app) ? (
-                          <button
-                            onClick={() => bookAgainForAppointment(app)}
-                            className="px-4 py-2 text-sm font-semibold rounded-xl bg-red-600 text-white hover:bg-red-700"
-                          >
-                            Book again
-                          </button>
                         ) : app.status === 'confirmed' || app.status === 'current' ? (
                           <button
                             onClick={() => openPayment(app._id)}
@@ -618,11 +681,6 @@ export default function PatientDashboard() {
                         {app.status === 'cancelled' && app.paymentStatus === 'refunded' && (
                           <div className="mt-2 ml-16 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-2">
                             Refund initiated for this appointment.
-                          </div>
-                        )}
-                        {isExpiredUnpaidAppointment(app) && (
-                          <div className="mt-2 ml-16 text-sm text-red-700 bg-red-50 border border-red-100 rounded-lg px-4 py-2">
-                            This slot has passed without payment. Please book another time to continue.
                           </div>
                         )}
                       </React.Fragment>
@@ -749,19 +807,27 @@ export default function PatientDashboard() {
                       </a>
                     )}
                   </div>
-                ) : previewRecord.mimeType?.includes('pdf') ? (
+                ) : previewLoading ? (
+                  <div className="flex h-[55vh] w-full items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 text-sm text-neutral-500">
+                    Loading file...
+                  </div>
+                ) : previewFileUrl && previewRecord.mimeType?.includes('pdf') ? (
                   <iframe
                     title={previewRecord.title}
                     src={previewFileUrl}
                     className="h-[75vh] w-full rounded-2xl border border-neutral-200"
                   />
-                ) : (
+                ) : previewFileUrl ? (
                   <img
                     src={previewFileUrl}
                     alt={previewRecord.title}
                     onError={() => setPreviewRecordError('The file could not be loaded from the server.')}
                     className="max-h-[75vh] w-full rounded-2xl object-contain bg-neutral-100"
                   />
+                ) : (
+                  <div className="flex h-[55vh] w-full items-center justify-center rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 text-sm text-neutral-500">
+                    Loading file...
+                  </div>
                 )}
                 {!previewRecordError && previewFileUrl && (
                   <div className="mt-3 flex justify-end">

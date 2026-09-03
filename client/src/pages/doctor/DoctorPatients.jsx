@@ -54,6 +54,29 @@ export default function DoctorPatients() {
     loadDetails();
   }, [doctorInfo, selectedPatientId]);
 
+  const openRecordFile = async (record) => {
+    if (!doctorInfo?.token || !record) return;
+    try {
+      // Cloudinary (or any absolute/CDN URL) is publicly servable by the provider.
+      if (record.storageType === 'cloudinary' || /^https?:\/\//i.test(String(record.fileUrl || ''))) {
+        window.open(resolveRecordUrl(record.fileUrl), '_blank', 'noopener,noreferrer');
+        return;
+      }
+      // Locally-stored files are served only through the authenticated endpoint,
+      // so the file is fetched with the token and opened as a Blob object URL.
+      const config = {
+        headers: { Authorization: `Bearer ${doctorInfo.token}` },
+        responseType: 'blob',
+      };
+      const response = await axios.get(withApiBase(`/api/patient-records/${record._id}/file`), config);
+      const blobUrl = URL.createObjectURL(response.data);
+      window.open(blobUrl, '_blank', 'noopener,noreferrer');
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to open record');
+    }
+  };
+
   if (!doctorInfo) return null;
 
   return (
@@ -125,11 +148,16 @@ export default function DoctorPatients() {
                     <h3 className="mb-3 text-lg font-semibold text-neutral-900">Uploaded records</h3>
                     <div className="space-y-3">
                       {details.records?.length ? details.records.map((record) => (
-                        <a key={record._id} href={resolveRecordUrl(record.fileUrl)} target="_blank" rel="noreferrer" className="block rounded-2xl border border-neutral-200 bg-neutral-50 p-4 hover:bg-neutral-100">
+                        <button
+                          key={record._id}
+                          type="button"
+                          onClick={() => openRecordFile(record)}
+                          className="block w-full rounded-2xl border border-neutral-200 bg-neutral-50 p-4 text-left hover:bg-neutral-100"
+                        >
                           <div className="font-semibold text-neutral-900">{record.title}</div>
                           <div className="text-xs text-neutral-500">{new Date(record.createdAt).toLocaleDateString()}</div>
                           <div className="text-xs text-neutral-500">{record.mimeType?.includes('pdf') ? 'PDF' : 'Image'}</div>
-                        </a>
+                        </button>
                       )) : <p className="text-sm text-neutral-500">No records uploaded yet.</p>}
                     </div>
                   </div>

@@ -1,7 +1,7 @@
 import Appointment from '../models/Appointment.js';
 import Doctor from '../models/Doctor.js';
 import crypto from 'crypto';
-import { parseAppointmentDateTime, getReminderTime, getConsultationWindow, CONSULTATION_WINDOW_BEFORE_MINUTES } from '../services/appointmentTiming.js';
+import { parseAppointmentDateTime, getReminderTime, getConsultationWindow, CONSULTATION_WINDOW_BEFORE_MINUTES, isPaymentDeadlinePassed } from '../services/appointmentTiming.js';
 import { clearAppointmentNotifications, queueAppointmentConfirmation, queueAppointmentReceipt, queueAppointmentReminder, queueAppointmentCancellation, queueAppointmentRefunded } from '../services/notification.service.js';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
@@ -237,6 +237,9 @@ export const getMyAppointments = async (req, res) => {
         if (appointmentObject.status === 'cancelled' && !appointmentObject.cancellationReason) {
           appointmentObject.cancellationReason = 'Doctor is no longer available';
         }
+
+        appointmentObject.paymentDeadlinePassed =
+          appointmentObject.paymentStatus !== 'paid' && isPaymentDeadlinePassed(appointmentObject.date);
 
         return appointmentObject;
       }),

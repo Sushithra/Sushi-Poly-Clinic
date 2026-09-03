@@ -4,20 +4,14 @@ dotenv.config();
 import cors from "cors";
 import express from "express";
 import { createServer } from "http";
-import path from "path";
-import { fileURLToPath } from "url";
 import routes from "./routes/index.js";
 import { connectDB } from "./database/db.js";
 import { startNotificationScheduler } from "./services/notification.service.js";
 import { registerWebrtcSignaling } from "./services/webrtcSignaling.js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
 const httpServer = createServer(app);
 const port = Number(process.env.PORT || 10000);
-const uploadsDir = path.resolve(__dirname, '../uploads');
 const allowedOrigins = new Set([
   'https://sushi-polyclinic.onrender.com',
   'https://sushi-poly-clinic.onrender.com',
@@ -38,9 +32,10 @@ app.use(
   }),
 );
 app.use(express.json());
-app.use('/uploads', express.static(uploadsDir));
+// NOTE: patient-record files are served through the authenticated
+// GET /api/patient-records/:id/file endpoint, not a public static mount, so
+// medical records cannot be fetched without ownership/authorization.
 
-// Add a friendly root endpoint for direct backend visits.
 app.get("/", (_request, response) => {
   response.send(`
     <html>

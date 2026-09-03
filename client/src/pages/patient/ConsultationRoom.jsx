@@ -61,6 +61,8 @@ export default function ConsultationRoom() {
   const joinResolvedRef = useRef(false);
   const joinRetryRef = useRef(false);
   const isInitiatorRef = useRef(false);
+  const stageRef = useRef(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (!session?.token) {
@@ -141,6 +143,12 @@ export default function ConsultationRoom() {
   };
 
   useEffect(() => cleanupMeeting, []);
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(Boolean(document.fullscreenElement));
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
 
   const ensurePeerConnection = () => {
     if (peerRef.current) {
@@ -371,6 +379,15 @@ export default function ConsultationRoom() {
     setIsVideoOff(!track.enabled);
   };
 
+  const toggleFullscreen = () => {
+    if (!stageRef.current) return;
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.();
+    } else {
+      stageRef.current.requestFullscreen?.();
+    }
+  };
+
   const markConsultationDone = async () => {
     if (!isDoctorSession || !session?.token || !appointmentId) {
       return;
@@ -485,49 +502,68 @@ export default function ConsultationRoom() {
           </section>
 
           <section className="rounded-3xl border border-white/10 bg-black p-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-slate-950 p-3">
-                <p className="mb-2 text-xs uppercase tracking-[0.3em] text-cyan-300">{isVoiceConsultation ? 'Local audio' : 'Local camera'}</p>
-                <video ref={localVideoRef} autoPlay playsInline muted className="h-[34vh] w-full rounded-xl bg-black object-cover" />
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-slate-950 p-3">
-                <p className="mb-2 text-xs uppercase tracking-[0.3em] text-cyan-300">{isVoiceConsultation ? 'Remote audio' : 'Remote camera'}</p>
-                <video ref={remoteVideoRef} autoPlay playsInline className="h-[34vh] w-full rounded-xl bg-black object-cover" />
-              </div>
-            </div>
+            <div ref={stageRef} className="relative h-[60vh] w-full overflow-hidden rounded-2xl bg-black md:h-[70vh]">
+              <video
+                ref={remoteVideoRef}
+                autoPlay
+                playsInline
+                className={`absolute inset-0 h-full w-full object-cover ${meetingStatus === 'connected' ? '' : 'hidden'}`}
+              />
 
-            <div className="mt-4 flex flex-wrap items-center gap-3">
-              <button
-                onClick={toggleMute}
-                className="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-                disabled={!localStreamRef.current}
-              >
-                {isMuted ? 'Unmute' : 'Mute'}
-              </button>
-              <button
-                onClick={toggleVideo}
-                className="rounded-2xl border border-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-                disabled={!localStreamRef.current || isVoiceConsultation}
-              >
-                {isVideoOff ? 'Start video' : 'Stop video'}
-              </button>
-              <button
-                onClick={() => {
-                  cleanupMeeting();
-                  navigate(isDoctorSession ? '/doctor/dashboard' : '/patient/dashboard');
-                }}
-                className="rounded-2xl bg-red-500 px-4 py-2 text-sm font-semibold text-white hover:bg-red-400"
-              >
-                Leave room
-              </button>
-              {isDoctorSession && appointment?.status !== 'completed' && appointment?.paymentStatus === 'paid' && (
-                <button
-                  onClick={markConsultationDone}
-                  className="rounded-2xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-500"
-                >
-                  Mark as done
-                </button>
+              {meetingStatus !== 'connected' && (
+                <div className="absolute inset-0 flex items-center justify-center bg-slate-950 p-6 text-center text-sm text-slate-300">
+                  {isVoiceConsultation
+                    ? 'Waiting for the other participant to connect...'
+                    : 'Waiting for the other participant to share their camera...'}
+                </div>
               )}
+
+              <div className="absolute right-3 top-3 z-10 w-28 overflow-hidden rounded-xl border-2 border-white/30 bg-slate-950 shadow-lg sm:w-32 md:w-40">
+                <div className="aspect-[4/3] w-full">
+                  <video ref={localVideoRef} autoPlay playsInline muted className="h-full w-full object-cover" />
+                </div>
+                <span className="block bg-black/60 px-1 py-0.5 text-center text-[10px] text-white/80">You</span>
+              </div>
+
+              <div className="absolute bottom-3 left-1/2 z-10 flex -translate-x-1/2 max-w-full flex-wrap items-center justify-center gap-2 rounded-2xl border border-white/10 bg-black/70 px-3 py-2 backdrop-blur">
+                <button
+                  onClick={toggleMute}
+                  className="rounded-xl border border-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10"
+                  disabled={!localStreamRef.current}
+                >
+                  {isMuted ? 'Unmute' : 'Mute'}
+                </button>
+                <button
+                  onClick={toggleVideo}
+                  className="rounded-xl border border-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10"
+                  disabled={!localStreamRef.current || isVoiceConsultation}
+                >
+                  {isVideoOff ? 'Start video' : 'Stop video'}
+                </button>
+                <button
+                  onClick={toggleFullscreen}
+                  className="rounded-xl border border-white/10 px-3 py-2 text-sm font-semibold text-white hover:bg-white/10"
+                >
+                  {isFullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+                </button>
+                {isDoctorSession && appointment?.status !== 'completed' && appointment?.paymentStatus === 'paid' && (
+                  <button
+                    onClick={markConsultationDone}
+                    className="rounded-xl bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-500"
+                  >
+                    Mark as done
+                  </button>
+                )}
+                <button
+                  onClick={() => {
+                    cleanupMeeting();
+                    navigate(isDoctorSession ? '/doctor/dashboard' : '/patient/dashboard');
+                  }}
+                  className="rounded-xl bg-red-500 px-3 py-2 text-sm font-semibold text-white hover:bg-red-400"
+                >
+                  Leave room
+                </button>
+              </div>
             </div>
 
             {!canJoin && !consultation?.paymentDue && !loading && (

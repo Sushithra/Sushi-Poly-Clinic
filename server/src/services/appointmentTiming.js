@@ -78,6 +78,38 @@ export const parseAppointmentDateTime = (dateValue, timeSlot) => {
   return parsedDate;
 };
 
+// The payment deadline for an appointment is the end of its scheduled calendar
+// day in IST (Asia/Kolkata). The stored `date` is the wall-clock calendar day
+// (UTC midnight). Midnight IST of the FOLLOWING day equals the end of the
+// appointment's IST calendar day, e.g. appointment on 03/09 remains payable
+// through 03/09 23:59:59 IST and expires at 04/09 00:00:00 IST.
+export const getPaymentDeadline = (dateValue) => {
+  const date = dateValue instanceof Date ? new Date(dateValue.getTime()) : new Date(dateValue);
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate() + 1,
+      0,
+      0,
+      0,
+      0,
+    ) - KOLKATA_OFFSET_MS,
+  );
+};
+
+export const isPaymentDeadlinePassed = (dateValue, atDate = new Date()) => {
+  const deadline = getPaymentDeadline(dateValue);
+  if (!deadline) {
+    return false;
+  }
+  return atDate.getTime() > deadline.getTime();
+};
+
 export const isAtLeastHoursAhead = (appointmentDateTime, hours) => {
   if (!(appointmentDateTime instanceof Date) || Number.isNaN(appointmentDateTime.getTime())) {
     return false;

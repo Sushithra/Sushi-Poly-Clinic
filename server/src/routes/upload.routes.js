@@ -2,13 +2,16 @@ import express from 'express';
 import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import multer from 'multer';
 import cloudinary, { isCloudinaryConfigured } from '../config/cloudinary.js';
 
 const router = express.Router();
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
-const uploadDir = path.resolve(process.cwd(), 'server', 'uploads');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadDir = path.resolve(__dirname, '../../uploads');
 
 const saveBufferLocally = async (file) => {
   await fs.mkdir(uploadDir, { recursive: true });

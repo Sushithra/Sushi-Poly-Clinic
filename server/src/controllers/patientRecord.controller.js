@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import multer from 'multer';
 import cloudinary, { isCloudinaryConfigured } from '../config/cloudinary.js';
 import Appointment from '../models/Appointment.js';
@@ -8,10 +9,16 @@ import PatientRecord from '../models/PatientRecord.js';
 import User from '../models/User.js';
 import mongoose from 'mongoose';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const upload = multer({ storage: multer.memoryStorage() });
 
 const allowedMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']);
-const uploadDir = path.resolve(process.cwd(), 'server', 'uploads');
+// Root the local upload directory relative to this file so writing and serving
+// always agree regardless of the process working directory (especially on Render,
+// where the start command may run from a different cwd than the repo root).
+const uploadDir = path.resolve(__dirname, '../../uploads');
 
 const uploadBufferToCloudinary = (buffer, options = {}) =>
   new Promise((resolve, reject) => {
@@ -125,6 +132,60 @@ export const getMyPatientRecords = async (req, res) => {
     res.json(records);
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Fetch a single patient-record file (authenticated)
+// @route   GET /api/patient-records/:id/file
+// @access  Private
+// Serves the stored bytes for local storage or returns the CDN URL for
+// Cloudinary storage. Authorization: the owning patient, or a doctor who has
+// had a completed consultation with that patient.
+export const getPatientRecordFile = async (req, res) => {
+  try {
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ message: 'Database is not connected' });
+    }
+
+    const record = await PatientRecord.findById(req.params.id);
+    if (!record) {
+      return res.status(404).json({ message: 'Record not found' });
+    }
+
+    const isOwner = String(record.patient) === String(req.user._id);
+    if (!isOwner && req.user?.role === 'doctor') {
+      const completedMeeting = await Appointment.exists({
+        doctor: req.user._id,
+        patient: record.patient,
+        status: 'completed',
+      });
+      if (!completedMeeting) {
+        return res.status(403).json({ message: 'Not authorized to access this record' });
+      }
+    } else if (!isOwner) {
+      return res.status(403).json({ message: 'Not authorized to access this record' });
+    }
+
+    if (record.storageType === 'cloudinary' && record.fileUrl) {
+      return res.json({ storageType: 'cloudinary', url: record.fileUrl });
+    }
+
+    const fileName = record.publicId || path.basename(String(record.fileUrl || ''));
+    if (!fileName) {
+      return res.status(404).json({ message: 'Record file not found' });
+    }
+
+    const filePath = path.join(uploadDir, fileName);
+    const buf = await fs.readFile(filePath);
+    res.setHeader('Content-Type', record.mimeType || 'application/octet-stream');
+    res.setHeader('Content-Disposition', `inline; filename="${encodeURIComponent(record.fileName || record.title || 'record')}"`);
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+    return res.send(buf);
+  } catch (error) {
+    if (error && error.code === 'ENOENT') {
+      return res.status(404).json({ message: 'Record file not found' });
+    }
+    return res.status(500).json({ message: error.message });
   }
 };
 
