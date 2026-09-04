@@ -421,7 +421,7 @@ export default function PharmacyPage() {
             onClick={() => setCartOpen(true)}
             className="mt-6 md:mt-0 flex items-center gap-2 bg-white text-primary-900 px-5 py-3 rounded-xl font-semibold hover:bg-primary-100 transition"
           >
-            <span>ðŸ›’</span>
+            <span>🛒</span>
             Cart ({cartCount})
           </button>
         </div>
@@ -434,13 +434,13 @@ export default function PharmacyPage() {
             <div className="px-6 py-4 border-b border-neutral-200 flex justify-between items-center">
               <h2 className="text-xl font-bold text-neutral-900">My Orders</h2>
               <button onClick={() => setOrdersView(false)} className="text-sm font-medium text-primary-600 hover:text-primary-700">
-                â† Back to shop
+                ← Back to shop
               </button>
             </div>
             {placedOrder && (
               <div className="m-6 bg-green-50 border border-green-200 text-green-800 rounded-xl p-4">
                 <p className="font-semibold">Order #{placedOrder._id} placed successfully!</p>
-                <p className="text-sm mt-1">Total: â‚¹{placedOrder.totalAmount} Â· {placedOrder.orderStatus}</p>
+                <p className="text-sm mt-1">Total: ₹{placedOrder.totalAmount} · {placedOrder.orderStatus}</p>
               </div>
             )}
             <div className="p-6">
@@ -462,7 +462,7 @@ export default function PharmacyPage() {
                           <span className="ml-3 text-sm text-neutral-500">{new Date(order.createdAt).toLocaleDateString()}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-sm font-bold text-primary-600">â‚¹{order.totalAmount}</span>
+                          <span className="text-sm font-bold text-primary-600">₹{order.totalAmount}</span>
                           <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
                             order.orderStatus === 'delivered' ? 'bg-green-100 text-green-700' :
                             order.orderStatus === 'cancelled' ? 'bg-red-100 text-red-700' :
@@ -476,16 +476,16 @@ export default function PharmacyPage() {
                       <div className="space-y-2">
                         {order.items.map((item, idx) => (
                           <div key={idx} className="flex items-center gap-3 text-sm">
-                            <span className="text-xl">{item.image && item.image.length <= 4 ? item.image : 'ðŸ’Š'}</span>
+                            <span className="text-xl">{item.image && item.image.length <= 4 ? item.image : '💊'}</span>
                             <span className="flex-1 font-medium text-neutral-800">{item.name}</span>
-                            <span className="text-neutral-500">Ã—{item.quantity}</span>
-                            <span className="font-semibold text-neutral-900">â‚¹{item.price * item.quantity}</span>
+                            <span className="text-neutral-500">×{item.quantity}</span>
+                            <span className="font-semibold text-neutral-900">₹{item.price * item.quantity}</span>
                           </div>
                         ))}
                       </div>
                       <div className="flex justify-between pt-2 border-t border-neutral-100 mt-1 text-sm">
                         <span className="font-medium text-neutral-600">Total</span>
-                        <span className="font-semibold text-neutral-900">â‚¹{order.totalAmount}</span>
+                        <span className="font-semibold text-neutral-900">₹{order.totalAmount}</span>
                       </div>
                       <div className="pt-2 mt-1 space-y-1 text-sm">
                         <div className="flex items-center gap-2">
@@ -495,7 +495,7 @@ export default function PharmacyPage() {
                           }`}>
                             {order.paymentStatus || 'pending'}
                           </span>
-                          <span className="text-neutral-500">Â· Method: Razorpay</span>
+                          <span className="text-neutral-500">· Method: Razorpay</span>
                         </div>
                         {order.shippingAddress && (
                           <p className="text-neutral-600">Deliver to: {order.shippingAddress.fullName}, {order.shippingAddress.addressLine1}{order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ''}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.pincode}</p>
@@ -544,7 +544,7 @@ export default function PharmacyPage() {
                     placeholder="Search medicines..."
                     className="pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 w-full md:w-64"
                   />
-                  <span className="absolute left-3 top-2.5 text-neutral-400">ðŸ”</span>
+                  <span className="absolute left-3 top-2.5 text-neutral-400">🔍</span>
                 </div>
               </div>
 
@@ -577,7 +577,7 @@ export default function PharmacyPage() {
                             <p className="text-sm text-neutral-500 mb-2 line-clamp-2">{product.description}</p>
                           )}
                           <div className="flex items-center justify-between mb-4">
-                            <p className="text-xl font-bold text-primary-600">â‚¹{product.price}</p>
+                            <p className="text-xl font-bold text-primary-600">₹{product.price}</p>
                             {typeof product.stock === 'number' && (
                               <span className={`text-xs font-medium ${product.stock > 0 ? 'text-green-600' : 'text-red-500'}`}>
                                 {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
@@ -618,7 +618,7 @@ export default function PharmacyPage() {
               </div>
             ) : cart.items.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 p-6 text-center">
-                <p className="text-4xl mb-3">ðŸ›’</p>
+                <p className="text-4xl mb-3">🛒</p>
                 <p>Your cart is empty.</p>
               </div>
             ) : (
@@ -630,12 +630,12 @@ export default function PharmacyPage() {
                         {item.image && String(item.image).startsWith('/') || item.image && String(item.image).startsWith('http') ? (
                           <img src={resolveRecordUrl(item.image)} alt={item.name} className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-2xl">{item.image && item.image.length <= 4 ? item.image : 'ðŸ’Š'}</span>
+                          <span className="text-2xl">{item.image && item.image.length <= 4 ? item.image : '💊'}</span>
                         )}
                       </div>
                       <div className="flex-1">
                         <p className="font-semibold text-neutral-900">{item.name}</p>
-                        <p className="text-sm text-primary-600 font-bold">â‚¹{item.price}</p>
+                        <p className="text-sm text-primary-600 font-bold">₹{item.price}</p>
                         {item.prescriptionRequired && (
                           <p className="text-xs text-amber-600 mt-0.5">Prescription required</p>
                         )}
@@ -644,7 +644,7 @@ export default function PharmacyPage() {
                             onClick={() => handleUpdateQty(item.product, item.quantity - 1)}
                             disabled={cartLoading}
                             className="w-7 h-7 border border-neutral-300 rounded-md disabled:opacity-50"
-                          >âˆ’</button>
+                          >−</button>
                           <span className="w-8 text-center">{item.quantity}</span>
                           <button
                             onClick={() => handleUpdateQty(item.product, item.quantity + 1)}
@@ -665,7 +665,7 @@ export default function PharmacyPage() {
                 <div className="border-t border-neutral-200 p-6 space-y-4">
                   <div className="flex justify-between">
                     <span className="font-medium text-neutral-600">Total</span>
-                    <span className="text-xl font-bold text-neutral-900">â‚¹{cart.totalAmount}</span>
+                    <span className="text-xl font-bold text-neutral-900">₹{cart.totalAmount}</span>
                   </div>
                   {!checkout ? (
                     <button
@@ -693,7 +693,7 @@ export default function PharmacyPage() {
                                       {addr.isDefault && <span className="text-xs bg-primary-100 text-primary-700 px-2 py-0.5 rounded-full">Default</span>}
                                     </div>
                                     <p className="text-neutral-600 mt-1">{addr.addressLine1}{addr.addressLine2 ? `, ${addr.addressLine2}` : ''}</p>
-                                    <p className="text-neutral-600">{addr.city}, {addr.state} {addr.pincode} Â· {addr.phone}</p>
+                                    <p className="text-neutral-600">{addr.city}, {addr.state} {addr.pincode} · {addr.phone}</p>
                                   </div>
                                   <div className="flex items-center gap-3 mt-2 text-xs">
                                     <button onClick={() => selectSavedAddress(addr)} className="text-primary-600 hover:text-primary-700 font-medium">Use</button>
@@ -747,13 +747,13 @@ export default function PharmacyPage() {
                           <div className="rounded-lg border border-neutral-200 p-3">
                             <p className="text-sm font-semibold text-neutral-700 mb-2">Payment Method</p>
                             <div className="flex items-center gap-2 border border-primary-200 bg-primary-50 rounded-lg px-3 py-2">
-                              <span className="text-lg">ðŸ’³</span>
+                              <span className="text-lg">💳</span>
                               <span className="text-sm font-medium text-neutral-800">Pay Online with Razorpay</span>
                             </div>
                           </div>
                           <div className="flex justify-between text-sm">
                             <span className="font-medium text-neutral-600">Total</span>
-                            <span className="text-lg font-bold text-neutral-900">â‚¹{cart.totalAmount}</span>
+                            <span className="text-lg font-bold text-neutral-900">₹{cart.totalAmount}</span>
                           </div>
                           {paymentError && (
                             <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2">
@@ -761,10 +761,10 @@ export default function PharmacyPage() {
                             </div>
                           )}
                           <button onClick={() => { setPaymentError(''); setCheckoutStep('address'); }} className="w-full py-2 border border-neutral-300 text-neutral-600 font-semibold rounded-xl hover:bg-neutral-50 transition">
-                            â† Change Address
+                            ← Change Address
                           </button>
                           <button onClick={handlePayWithRazorpay} disabled={placesaving} className="w-full py-3 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition disabled:opacity-50">
-                            {placesaving ? 'Opening Razorpay...' : `Pay â‚¹${cart.totalAmount} with Razorpay`}
+                            {placesaving ? 'Opening Razorpay...' : `Pay ₹${cart.totalAmount} with Razorpay`}
                           </button>
                         </div>
                       )}

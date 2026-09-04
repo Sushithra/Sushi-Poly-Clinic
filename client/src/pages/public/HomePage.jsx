@@ -2,9 +2,10 @@
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { withApiBase } from '../../config/env.js';
+import { resolveRecordUrl } from '../../utils/recordUrl.js';
 
 const BRAND = 'Sushi Polyclinic';
-const LOGO_URL = '/icons/icon-192.svg';
+const LOGO_URL = '/icons/logo.png';
 
 const NAV_LINKS = [
   { label: 'Home', to: '/', page: true },
@@ -103,6 +104,11 @@ const initialAvatar = (name = '') => {
   return (first + last).toUpperCase();
 };
 
+const resolveImage = (product) => {
+  if (product.imageUrl) return resolveRecordUrl(product.imageUrl);
+  return '';
+};
+
 export default function HomePage() {
   const navigate = useNavigate();
 
@@ -110,6 +116,8 @@ export default function HomePage() {
   const [doctors, setDoctors] = useState([]);
   const [doctorsLoading, setDoctorsLoading] = useState(true);
   const [doctorsError, setDoctorsError] = useState('');
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   const userInfo = useMemo(() => {
     try {
@@ -139,6 +147,24 @@ export default function HomePage() {
     };
   }, []);
 
+  useEffect(() => {
+    let mounted = true;
+    axios
+      .get(withApiBase('/api/products'))
+      .then(({ data }) => {
+        if (mounted) setProducts(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (mounted) setProducts([]);
+      })
+      .finally(() => {
+        if (mounted) setProductsLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const closeMenu = () => setMenuOpenState(false);
 
   const openSection = (id) => {
@@ -159,6 +185,7 @@ export default function HomePage() {
   };
 
   const featuredDoctors = doctors.slice(0, 4);
+  const featuredProducts = products.slice(0, 4);
 
   return (
     <div className="min-h-screen bg-white text-neutral-800 overflow-x-hidden">
@@ -184,7 +211,7 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-neutral-100 shadow-sm">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 md:h-20 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2.5 shrink-0" onClick={closeMenu}>
-            <img src={LOGO_URL} alt={`${BRAND} logo`} className="w-9 h-9 md:w-11 md:h-11" />
+            <img src={LOGO_URL} alt={`${BRAND} logo`} className="h-9 md:h-11 w-auto" />
             <span className="text-lg md:text-2xl font-bold text-teal-800 tracking-tight">{BRAND}</span>
           </Link>
 
@@ -286,99 +313,224 @@ export default function HomePage() {
 
       {/* ============================= HERO ============================= */}
       <section className="relative overflow-hidden bg-gradient-to-br from-teal-800 via-teal-700 to-teal-900 text-white">
-        <div className="absolute top-0 right-0 -mr-24 -mt-24 w-96 h-96 rounded-full bg-white opacity-10 blur-3xl" />
-        <div className="absolute bottom-0 left-0 -ml-24 -mb-24 w-[28rem] h-[28rem] rounded-full bg-emerald-400 opacity-10 blur-3xl" />
+        {/* Organic background shapes (very slow drift / subtle parallax) */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+          <div className="absolute -top-24 -right-16 w-96 h-96 rounded-full bg-emerald-400/20 blur-3xl hero-drift" />
+          <div className="absolute -bottom-28 -left-20 w-[30rem] h-[30rem] rounded-full bg-teal-300/20 blur-3xl hero-drift-2" />
+          <div className="absolute top-1/3 left-1/2 w-64 h-64 rounded-full bg-white/10 blur-2xl hero-drift" />
+        </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24 grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <p className="inline-flex items-center gap-2 text-teal-100 text-sm font-semibold uppercase tracking-widest mb-4">
-              <span className="w-8 h-0.5 bg-teal-300 inline-block" />
-              Compassionate Care, Modern Medicine
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 md:pt-20 pb-16 md:pb-24 grid lg:grid-cols-2 gap-14 lg:gap-6 items-center">
+          {/* ============ Left: copy ============ */}
+          <div className="text-center lg:text-left">
+            <p className="hero-rise inline-flex items-center justify-center lg:justify-start gap-2 rounded-full bg-white/10 border border-white/20 px-4 py-1.5 text-teal-50 text-xs sm:text-sm font-semibold uppercase tracking-widest mb-6">
+              <span className="w-2 h-2 rounded-full bg-emerald-300 hero-pulse-dot" />
+              Compassionate Care • Modern Medicine
             </p>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6">
+            <h1 className="hero-rise-1 text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight tracking-tight mb-6">
               Your health,
               <br />
-              our <span className="text-teal-200">priority.</span>
+              our <span className="text-emerald-300">priority.</span>
             </h1>
-            <p className="text-lg md:text-xl text-teal-50/90 max-w-xl leading-relaxed mb-8">
-              Book consultations with trusted doctors, access online care, and order pharmacy delivered to your doorstep — all in one place.
+            <p className="hero-rise-2 text-base sm:text-lg md:text-xl text-teal-50/90 max-w-xl mx-auto lg:mx-0 leading-relaxed mb-9">
+              Trusted doctors, easy online consultations, and pharmacy delivered to your doorstep — all in one caring, modern clinic.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="hero-rise-3 flex flex-col sm:flex-row justify-center lg:justify-start gap-3">
               <button
                 onClick={() => bookAppointment()}
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-white text-teal-800 font-bold shadow-lg hover:shadow-xl hover:bg-teal-50 transition-all"
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full bg-white text-teal-800 font-bold shadow-lg hover:shadow-xl hover:bg-teal-50 hover:-translate-y-0.5 active:translate-y-0 transition-all"
               >
                 Book Appointment
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
               </button>
-              <Link
-                to="/doctors"
-                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full border-2 border-white/40 text-white font-semibold hover:bg-white/10 transition-all"
+              <button
+                onClick={() => openSection('services')}
+                className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full border-2 border-white/40 text-white font-semibold hover:bg-white/10 hover:-translate-y-0.5 active:translate-y-0 transition-all"
               >
-                Explore Doctors
+                Explore Services
+              </button>
+            </div>
+          </div>
+
+          {/* ============ Right: human-centered healthcare visual ============ */}
+          <div className="hero-rise-4 relative flex items-center justify-center">
+            <div className="relative w-full max-w-md">
+              {/* Organic illustration of a patient and a caring clinician */}
+              <svg className="w-full h-auto hero-float-slow" viewBox="0 0 420 420" role="img" aria-label="A caring clinician talking with a happy patient">
+                <defs>
+                  <radialGradient id="heroBlob" cx="50%" cy="36%" r="78%">
+                    <stop offset="0%" stopColor="#f2fbf8" />
+                    <stop offset="100%" stopColor="#c7ede3" />
+                  </radialGradient>
+                  <linearGradient id="scrub" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#2b8c85" />
+                    <stop offset="100%" stopColor="#1e7a6d" />
+                  </linearGradient>
+                </defs>
+
+                {/* Organic blobs */}
+                <path d="M210 24 C 300 18 398 88 404 190 C 410 292 332 398 218 400 C 104 402 14 332 16 228 C 18 124 120 30 210 24 Z" fill="url(#heroBlob)" stroke="rgba(255,255,255,0.45)" strokeWidth="3" />
+                <circle cx="330" cy="92" r="34" fill="#b9e7d8" opacity="0.55" />
+                <circle cx="78" cy="330" r="26" fill="#9fe0c9" opacity="0.5" />
+
+                {/* Seated patient (left) */}
+                <ellipse cx="150" cy="330" rx="58" ry="26" fill="#1e7a6d" opacity="0.12" />
+                <path d="M128 236 c -14 8 -6 34 8 36 h 34 c 14 0 18 -26 6 -36 z" fill="#eaf7f2" />
+                <path d="M128 236 c -10 -22 6 -30 12 -40 c -6 -4 -26 -2 -20 12 z" fill="#d7efe6" />
+                <path d="M176 236 c 12 -4 26 -10 28 -24 c -8 -4 -24 -2 -20 8 z" fill="#d7efe6" />
+                <circle cx="152" cy="182" r="34" fill="#f4c7a5" />
+                <path d="M118 172 c -4 -18 12 -30 34 -30 s 40 12 34 32 c -14 -8 -54 -8 -68 -2 z" fill="#6b4a35" />
+                <circle cx="140" cy="180" r="3" fill="#3a2a20" />
+                <circle cx="164" cy="180" r="3" fill="#3a2a20" />
+                <path d="M140 198 q 12 10 24 0" stroke="#d97a5a" strokeWidth="3" fill="none" strokeLinecap="round" />
+
+                {/* Clinician (right) */}
+                <ellipse cx="272" cy="330" rx="52" ry="22" fill="#1e7a6d" opacity="0.14" />
+                <rect x="238" y="226" width="66" height="110" rx="24" fill="url(#scrub)" />
+                <path d="M238 236 l -24 -6 c -8 10 -4 26 12 28 l 10 -2 z" fill="url(#scrub)" />
+                <path d="M304 230 l 26 -8 c 10 4 10 20 -2 24 l -8 -2 z" fill="url(#scrub)" />
+                <circle cx="270" cy="172" r="36" fill="#f0bd94" />
+                <path d="M234 164 c 0 -20 14 -32 36 -32 s 36 12 36 32 c -12 -6 -14 -2 -72 -2 z" fill="#fff" />
+                <path d="M236 168 c -2 -14 16 -30 34 -30 c -8 -14 -34 -10 -36 2 z" fill="#e7e9ee" />
+                <circle cx="258" cy="170" r="3" fill="#3a2a20" />
+                <circle cx="282" cy="170" r="3" fill="#3a2a20" />
+                <path d="M258 186 q 12 10 24 0" stroke="#d97a5a" strokeWidth="3" fill="none" strokeLinecap="round" />
+
+                {/* Stethoscope on clinician */}
+                <path d="M254 246 c -2 -8 12 -10 14 -2 c 2 10 -6 26 -14 26 c -10 0 -12 -12 -6 -20" stroke="#2b0f0c" strokeWidth="4" fill="none" strokeLinecap="round" />
+                <rect x="243" y="260" width="54" height="14" rx="7" fill="#2b8c85" />
+                <circle cx="262" cy="273" r="7" fill="#f0bd94" />
+                <circle cx="280" cy="273" r="7" fill="#f0bd94" />
+
+                {/* Heartbeat line */}
+                <path d="M58 300 h 84 l 14 -22 18 40 14 -22 16 4 h 60" stroke="#10b981" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M58 300 h 84 l 14 -20 18 38 14 -20 16 2 h 60" stroke="rgba(255,255,255,0.7)" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
+              </svg>
+
+              {/* Floating decorative medical elements */}
+              <div className="absolute top-2 right-6 w-10 h-10 rounded-full bg-white/90 shadow-md flex items-center justify-center text-teal-700 hero-float" aria-hidden="true">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.2 5.2L19 5l-1.8 5L19 15l-4.8-1.2L12 19l-2.2-5.2L5 15l1.8-5L5 5l4.8 2.2z" /></svg>
+              </div>
+              <div className="absolute top-16 left-0 w-9 h-5 rounded-full bg-white/85 shadow-md border border-teal-100 hero-float-slower" aria-hidden="true">
+                <span className="block w-4 h-4 rounded-full bg-teal-500" />
+              </div>
+              <div className="absolute bottom-10 right-2 text-teal-700 hero-float-slow" aria-hidden="true">
+                <svg className="w-7 h-7 drop-shadow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18M12 3v18" />
+                </svg>
+              </div>
+
+              {/* Floating informational pills */}
+              <div className="absolute -left-3 sm:left-0 top-8 md:top-10 hero-float hero-rise-1">
+                <div className="rounded-full bg-white text-teal-800 shadow-xl px-3.5 py-2 text-xs sm:text-sm font-bold flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 hero-pulse-dot" />
+                  24/7 CARE
+                </div>
+              </div>
+              <div className="absolute -right-2 sm:right-0 top-0 hero-float-slower hero-rise-2">
+                <div className="rounded-full bg-white text-teal-800 shadow-xl px-3.5 py-2 text-xs sm:text-sm font-bold flex items-center gap-2">
+                  <svg className="w-4 h-4 text-teal-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  ONLINE CONSULTATION
+                </div>
+              </div>
+              <div className="absolute -bottom-3 left-1/4 hero-float-slow hero-rise-3">
+                <div className="rounded-full bg-white text-teal-800 shadow-xl px-3.5 py-2 text-xs sm:text-sm font-bold flex items-center gap-2">
+                  <svg className="w-4 h-4 text-teal-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 3v18M3 9h18M9 3h6m-6 6v6m6-6v6M9 3h6M9 21h6" />
+                  </svg>
+                  TRUSTED PHARMACY
+                </div>
+              </div>
+              <div className="absolute -right-2 bottom-2 hero-float hero-rise-4">
+                <div className="rounded-full bg-white text-teal-800 shadow-xl px-3.5 py-2 text-xs sm:text-sm font-bold flex items-center gap-2">
+                  <svg className="w-4 h-4 text-teal-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  EASY APPOINTMENTS
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ============================= FEATURED PHARMACY ============================= */}
+      <section id="pharmacy-preview" className="py-16 md:py-24 bg-gradient-to-b from-teal-50/60 to-white scroll-mt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+            <div className="max-w-2xl">
+              <p className="text-teal-700 font-semibold uppercase tracking-widest text-sm mb-3">Popular Medicines</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-neutral-900 mb-3">Featured pharmacy picks</h2>
+              <p className="text-neutral-600">Genuine medicines, delivered to your doorstep. Order quickly from our trusted pharmacy.</p>
+            </div>
+            <Link
+              to="/pharmacy"
+              className="inline-flex items-center gap-2 self-start md:self-auto px-5 py-2.5 rounded-full border border-teal-700 text-teal-700 font-semibold text-sm hover:bg-teal-50 transition-colors"
+            >
+              Visit pharmacy
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </div>
+
+          {productsLoading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="rounded-2xl border border-neutral-100 bg-white p-4 animate-pulse">
+                  <div className="h-36 rounded-xl bg-neutral-100 mb-4" />
+                  <div className="h-4 bg-neutral-100 rounded-full w-3/4 mb-2" />
+                  <div className="h-4 bg-neutral-100 rounded-full w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : featuredProducts.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {featuredProducts.map((product) => {
+                const imageUrl = resolveImage(product);
+                return (
+                  <div
+                    key={product._id}
+                    className="group bg-white rounded-2xl shadow-sm border border-neutral-200 overflow-hidden hover:shadow-md transition"
+                  >
+                    <Link to="/pharmacy" className="block h-36 sm:h-44 bg-neutral-100 flex items-center justify-center overflow-hidden">
+                      {imageUrl ? (
+                        <img src={imageUrl} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+                      ) : (
+                        <span className="text-5xl group-hover:scale-110 transition duration-300">{product.image}</span>
+                      )}
+                    </Link>
+                    <div className="p-4">
+                      <div className="flex justify-between items-start gap-2 mb-1.5">
+                        <span className="text-[11px] sm:text-xs font-semibold text-primary-600 uppercase tracking-wider truncate">{product.category}</span>
+                        {product.prescriptionRequired && (
+                          <span className="text-[10px] sm:text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-md font-medium shrink-0">Rx</span>
+                        )}
+                      </div>
+                      <h3 className="text-sm sm:text-base font-bold text-neutral-900 line-clamp-1 mb-1">{product.name}</h3>
+                      <div className="flex items-center justify-between">
+                        <p className="text-base sm:text-lg font-bold text-primary-600">₹{product.price}</p>
+                        {typeof product.stock === 'number' && product.stock > 0 && (
+                          <span className="text-[11px] font-medium text-green-600">{product.stock} in stock</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-2xl border border-neutral-200 bg-white p-8 text-center">
+              <p className="text-neutral-600 font-medium">Medicines are being added — check our pharmacy soon.</p>
+              <Link to="/pharmacy" className="inline-flex items-center gap-2 mt-4 px-5 py-2.5 rounded-full bg-teal-700 text-white font-semibold text-sm hover:bg-teal-800 transition-colors">
+                Browse pharmacy
               </Link>
             </div>
-          </div>
-
-          {/* Hero visual */}
-          <div className="relative hidden lg:flex lg:justify-center lg:ml-6">
-            <div className="relative w-full max-w-md">
-              <div className="rounded-3xl bg-white/10 border border-white/20 p-8 backdrop-blur-md shadow-2xl">
-                <div className="rounded-2xl bg-white p-6 text-neutral-800 shadow-inner">
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-14 h-14 rounded-full bg-teal-100 flex items-center justify-center text-teal-700">
-                      <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <p className="font-bold">Dr. Dwarakanath</p>
-                      <p className="text-sm text-neutral-500">General Medicine</p>
-                    </div>
-                    <span className="ml-auto inline-flex items-center gap-1 text-sm font-semibold text-teal-700">
-                      <svg className="w-4 h-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 00.95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 00-.36 1.12l1.07 3.29c.3.92-.75 1.69-1.53 1.12l-2.8-2.03a1 1 0 00-1.18 0l-2.8 2.03c-.78.57-1.83-.2-1.53-1.12l1.07-3.29a1 1 0 00-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 00.95-.69l1.07-3.29z" /></svg>
-                      {4.7}
-                    </span>
-                  </div>
-
-                  <div className="space-y-3">
-                    {[
-                      { label: 'General Medicine', active: true },
-                      { label: 'Clinical Psychology', active: true },
-                      { label: 'Check-up & Consultation', active: false },
-                    ].map((row, i) => (
-                      <div key={i} className="flex items-center justify-between rounded-xl border border-neutral-100 bg-neutral-50 px-4 py-3">
-                        <span className="text-sm font-medium text-neutral-600">{row.label}</span>
-                        <span className={`inline-flex items-center gap-1 text-xs font-semibold ${row.active ? 'text-success-600' : 'text-neutral-400'}`}>
-                          <span className={`w-2 h-2 rounded-full ${row.active ? 'bg-success-500' : 'bg-neutral-300'}`} />
-                          {row.active ? 'Available' : 'By request'}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button onClick={() => bookAppointment()} className="w-full mt-6 py-3 rounded-full bg-teal-700 text-white font-semibold hover:bg-teal-800 transition-colors">
-                    Book now
-                  </button>
-                </div>
-              </div>
-
-              {/* Floating badge */}
-              <div className="absolute -bottom-6 -left-6 rounded-2xl bg-white shadow-xl p-4 flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-700">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-neutral-900">Verified Doctors</p>
-                  <p className="text-xs text-neutral-500">Experienced specialists</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
       </section>
 
@@ -481,20 +633,21 @@ export default function HomePage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {featuredDoctors.map((doctor) => (
                 <div key={doctor._id} className="rounded-2xl border border-neutral-100 bg-white p-6 text-center shadow-sm hover:shadow-md transition-shadow">
-                  <div className="w-20 h-20 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-2xl font-bold mx-auto mb-4">
+                  <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center text-3xl md:text-4xl font-bold mx-auto mb-4 overflow-hidden">
                     {initialAvatar(doctor.name)}
                   </div>
                   <h3 className="text-lg font-bold text-neutral-900 mb-1">{doctor.name}</h3>
                   <p className="text-sm text-neutral-600 mb-3">
                     {doctor.specialtyLabel || doctor.specialty || 'General Physician'}
                   </p>
-                  <div className="flex items-center justify-center gap-3 text-sm text-neutral-500 mb-5">
-                    <span className="inline-flex items-center gap-1">
-                      <svg className="w-4 h-4 text-amber-400" viewBox="0 0 20 20" fill="currentColor"><path d="M9.05 2.93c.3-.92 1.6-.92 1.9 0l1.07 3.29a1 1 0 00.95.69h3.46c.97 0 1.37 1.24.59 1.81l-2.8 2.03a1 1 0 00-.36 1.12l1.07 3.29c.3.92-.75 1.69-1.53 1.12l-2.8-2.03a1 1 0 00-1.18 0l-2.8 2.03c-.78.57-1.83-.2-1.53-1.12l1.07-3.29a1 1 0 00-.36-1.12L2.98 8.72c-.78-.57-.38-1.81.59-1.81h3.46a1 1 0 00.95-.69l1.07-3.29z" /></svg>
-                      {doctor.rating ?? 4.8}
-                    </span>
-                    {doctor.experienceYears > 0 && <span>{doctor.experienceYears} yrs exp</span>}
-                  </div>
+                  {doctor.experienceYears > 0 && (
+                    <div className="flex items-center justify-center gap-1.5 text-sm text-neutral-500 mb-5">
+                      <svg className="w-4 h-4 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      {doctor.experienceYears} yrs experience
+                    </div>
+                  )}
                   <button
                     onClick={() => bookAppointment(doctor)}
                     className="block w-full py-2.5 rounded-full bg-teal-700 text-white font-semibold text-sm hover:bg-teal-800 transition-colors"
@@ -537,7 +690,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           <div>
             <div className="flex items-center gap-2.5 mb-4">
-              <img src={LOGO_URL} alt={`${BRAND} logo`} className="w-10 h-10" />
+              <img src={LOGO_URL} alt={`${BRAND} logo`} className="h-10 w-auto" />
               <span className="text-xl font-bold text-white">{BRAND}</span>
             </div>
             <p className="text-sm text-teal-200/80 leading-relaxed">

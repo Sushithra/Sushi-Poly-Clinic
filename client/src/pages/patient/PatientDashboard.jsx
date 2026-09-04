@@ -685,7 +685,7 @@ export default function PatientDashboard() {
                       <div className="flex-1 min-w-0">
                         <h4 className="font-semibold text-neutral-900">{app.doctorName || app.doctor?.name || 'Doctor'}</h4>
                         <p className="text-sm text-neutral-600">{app.doctorSpecialty || app.doctor?.specialty || 'Specialist'}</p>
-                        <p className="text-sm text-neutral-500">{new Date(app.date).toLocaleDateString()} at {app.timeSlot} â€¢ {app.consultationType || 'video'}</p>
+                        <p className="text-sm text-neutral-500">{new Date(app.date).toLocaleDateString()} at {app.timeSlot} • {app.consultationType || 'video'}</p>
                       </div>
                       <div className="text-right ml-4 flex flex-col items-end gap-2">
                         <span className={`px-3 py-1 text-xs font-medium rounded-full ${
@@ -852,7 +852,7 @@ export default function PatientDashboard() {
                     className="rounded-full px-3 py-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
                     aria-label="Close preview"
                   >
-                    Ã—
+                    ×
                   </button>
                 </div>
                 {previewRecordError ? (
@@ -924,14 +924,14 @@ export default function PatientDashboard() {
                 className="rounded-full px-3 py-1 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700"
                 aria-label="Close payment dialog"
               >
-                Ã—
+                ×
               </button>
             </div>
 
             <div className="mt-6 rounded-2xl border border-neutral-200 bg-neutral-50 p-5">
               <div className="flex items-center justify-between gap-4">
                 <span className="text-sm text-neutral-600">Consultation fee</span>
-                <span className="text-2xl font-bold text-neutral-900">â‚¹{paymentTarget.consultationPrice ?? paymentTarget.doctor?.consultationFee ?? 500}</span>
+                <span className="text-2xl font-bold text-neutral-900">₹{paymentTarget.consultationPrice ?? paymentTarget.doctor?.consultationFee ?? 500}</span>
               </div>
               <p className="mt-3 text-sm text-neutral-500">
                 After payment, you will return to this home screen. When it is time for your appointment, a join button will appear here.

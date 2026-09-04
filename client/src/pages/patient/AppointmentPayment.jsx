@@ -305,7 +305,7 @@ export default function AppointmentPayment() {
 
                 <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950/40 p-5">
                   <h2 className="text-xl font-semibold">{appointment.doctorName || appointment.doctor?.name || 'Doctor'}</h2>
-                  <p className="mt-1 text-slate-300">{appointment.doctorSpecialty || 'General Physician'} â€¢ {appointment.consultationType || 'video'}</p>
+                  <p className="mt-1 text-slate-300">{appointment.doctorSpecialty || 'General Physician'} • {appointment.consultationType || 'video'}</p>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <div className="rounded-2xl bg-white/5 p-4">
                       <p className="text-xs uppercase tracking-wide text-slate-400">Appointment time</p>

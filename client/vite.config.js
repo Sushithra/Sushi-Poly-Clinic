@@ -8,7 +8,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'auto',
-      includeAssets: ['icons/icon-192.svg', 'icons/icon-512.svg', 'icons/icon-maskable.svg'],
+      includeAssets: ['icons/logo.png'],
       manifest: {
         name: 'Sushi Polyclinic',
         short_name: 'Sushi Polyclinic',
@@ -21,19 +21,19 @@ export default defineConfig({
         background_color: '#f4efe7',
         icons: [
           {
-            src: '/icons/icon-192.svg',
+            src: '/icons/logo.png',
             sizes: '192x192',
-            type: 'image/svg+xml',
+            type: 'image/png',
           },
           {
-            src: '/icons/icon-512.svg',
+            src: '/icons/logo.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/png',
           },
           {
-            src: '/icons/icon-maskable.svg',
+            src: '/icons/logo.png',
             sizes: '512x512',
-            type: 'image/svg+xml',
+            type: 'image/png',
             purpose: 'maskable',
           },
         ],

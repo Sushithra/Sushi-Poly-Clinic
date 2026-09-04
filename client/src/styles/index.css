@@ -768,3 +768,39 @@ a {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ================================================
+   HOMEPAGE HERO ANIMATIONS
+   Subtle, organic motion. Disabled by the global
+   prefers-reduced-motion rule above.
+   ================================================ */
+@keyframes heroRise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes heroDrift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(14px, -18px) scale(1.05); }
+}
+@keyframes heroPulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.82); }
+}
+
+.hero-rise { animation: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.hero-rise-1 { animation: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both; }
+.hero-rise-2 { animation: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both; }
+.hero-rise-3 { animation: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both; }
+.hero-rise-4 { animation: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.55s both; }
+
+.hero-float { animation: heroFloat 6s ease-in-out infinite; }
+.hero-float-slow { animation: heroFloat 9s ease-in-out infinite; }
+.hero-float-slower { animation: heroFloat 12s ease-in-out infinite; }
+.hero-drift { animation: heroDrift 24s ease-in-out infinite; }
+.hero-drift-2 { animation: heroDrift 32s ease-in-out infinite reverse; }
+.hero-pulse-dot { animation: heroPulseDot 2.4s ease-in-out infinite; }
+
