@@ -357,56 +357,66 @@ export default function HomePage() {
           {/* ============ Right: human-centered healthcare visual ============ */}
           <div className="hero-rise-4 relative flex items-center justify-center">
             <div className="relative w-full max-w-md">
-              {/* Organic illustration of a patient and a caring clinician */}
-              <svg className="w-full h-auto hero-float-slow" viewBox="0 0 420 420" role="img" aria-label="A caring clinician talking with a happy patient">
+              {/* Organic illustration of a friendly young adult patient in a modern clinic */}
+              <svg className="w-full h-auto hero-float-slow" viewBox="0 0 420 420" role="img" aria-label="A friendly young adult patient in a modern healthcare setting">
                 <defs>
                   <radialGradient id="heroBlob" cx="50%" cy="36%" r="78%">
                     <stop offset="0%" stopColor="#f2fbf8" />
                     <stop offset="100%" stopColor="#c7ede3" />
                   </radialGradient>
-                  <linearGradient id="scrub" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="tee" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#2b8c85" />
                     <stop offset="100%" stopColor="#1e7a6d" />
                   </linearGradient>
                 </defs>
 
-                {/* Organic blobs */}
+                {/* Organic blob */}
                 <path d="M210 24 C 300 18 398 88 404 190 C 410 292 332 398 218 400 C 104 402 14 332 16 228 C 18 124 120 30 210 24 Z" fill="url(#heroBlob)" stroke="rgba(255,255,255,0.45)" strokeWidth="3" />
-                <circle cx="330" cy="92" r="34" fill="#b9e7d8" opacity="0.55" />
-                <circle cx="78" cy="330" r="26" fill="#9fe0c9" opacity="0.5" />
+                <circle cx="330" cy="88" r="34" fill="#b9e7d8" opacity="0.55" />
+                <circle cx="80" cy="326" r="26" fill="#9fe0c9" opacity="0.5" />
 
-                {/* Seated patient (left) */}
-                <ellipse cx="150" cy="330" rx="58" ry="26" fill="#1e7a6d" opacity="0.12" />
-                <path d="M128 236 c -14 8 -6 34 8 36 h 34 c 14 0 18 -26 6 -36 z" fill="#eaf7f2" />
-                <path d="M128 236 c -10 -22 6 -30 12 -40 c -6 -4 -26 -2 -20 12 z" fill="#d7efe6" />
-                <path d="M176 236 c 12 -4 26 -10 28 -24 c -8 -4 -24 -2 -20 8 z" fill="#d7efe6" />
-                <circle cx="152" cy="182" r="34" fill="#f4c7a5" />
-                <path d="M118 172 c -4 -18 12 -30 34 -30 s 40 12 34 32 c -14 -8 -54 -8 -68 -2 z" fill="#6b4a35" />
-                <circle cx="140" cy="180" r="3" fill="#3a2a20" />
-                <circle cx="164" cy="180" r="3" fill="#3a2a20" />
-                <path d="M140 198 q 12 10 24 0" stroke="#d97a5a" strokeWidth="3" fill="none" strokeLinecap="round" />
+                {/* Small clinic cross accent */}
+                <g opacity="0.95">
+                  <rect x="22" y="118" width="34" height="34" rx="11" fill="#1e7a6d" />
+                  <path d="M39 126 v 18 M30 135 h 18" stroke="#fff" strokeWidth="4" strokeLinecap="round" />
+                </g>
+                <circle cx="352" cy="160" r="16" fill="#10b981" opacity="0.18" />
 
-                {/* Clinician (right) */}
-                <ellipse cx="272" cy="330" rx="52" ry="22" fill="#1e7a6d" opacity="0.14" />
-                <rect x="238" y="226" width="66" height="110" rx="24" fill="url(#scrub)" />
-                <path d="M238 236 l -24 -6 c -8 10 -4 26 12 28 l 10 -2 z" fill="url(#scrub)" />
-                <path d="M304 230 l 26 -8 c 10 4 10 20 -2 24 l -8 -2 z" fill="url(#scrub)" />
-                <circle cx="270" cy="172" r="36" fill="#f0bd94" />
-                <path d="M234 164 c 0 -20 14 -32 36 -32 s 36 12 36 32 c -12 -6 -14 -2 -72 -2 z" fill="#fff" />
-                <path d="M236 168 c -2 -14 16 -30 34 -30 c -8 -14 -34 -10 -36 2 z" fill="#e7e9ee" />
-                <circle cx="258" cy="170" r="3" fill="#3a2a20" />
-                <circle cx="282" cy="170" r="3" fill="#3a2a20" />
-                <path d="M258 186 q 12 10 24 0" stroke="#d97a5a" strokeWidth="3" fill="none" strokeLinecap="round" />
+                {/* Ground shadow */}
+                <ellipse cx="212" cy="360" rx="110" ry="24" fill="#1e7a6d" opacity="0.1" />
 
-                {/* Stethoscope on clinician */}
-                <path d="M254 246 c -2 -8 12 -10 14 -2 c 2 10 -6 26 -14 26 c -10 0 -12 -12 -6 -20" stroke="#2b0f0c" strokeWidth="4" fill="none" strokeLinecap="round" />
-                <rect x="243" y="260" width="54" height="14" rx="7" fill="#2b8c85" />
-                <circle cx="262" cy="273" r="7" fill="#f0bd94" />
-                <circle cx="280" cy="273" r="7" fill="#f0bd94" />
+                {/* ==== Friendly young adult patient (bust) ==== */}
+                {/* Neck */}
+                <rect x="196" y="180" width="24" height="34" rx="10" fill="#f4c7a5" />
+                {/* Shoulders / modern teal top */}
+                <path d="M146 302 C 144 240 168 210 210 210 C 252 210 276 240 274 302 Z" fill="url(#tee)" />
+                {/* White collar accent */}
+                <path d="M188 214 l 22 16 22 -16 l -10 -6 -12 9 -12 -9 z" fill="#eaf7f2" />
+                {/* Small white cross badge on the top */}
+                <g>
+                  <rect x="116" y="258" width="22" height="22" rx="7" fill="#fff" opacity="0.92" />
+                  <path d="M127 263 v 12 M121 269 h 12" stroke="#1e7a6d" strokeWidth="3" strokeLinecap="round" />
+                </g>
+                {/* Head */}
+                <circle cx="210" cy="138" r="44" fill="#f4c7a5" />
+                {/* Hair (modern short crop, warm brown) */}
+                <path d="M166 134 C 164 84 256 82 254 134 C 254 118 246 102 210 102 C 174 102 168 118 166 134 Z" fill="#5a3d2b" />
+                <path d="M176 96 C 190 66 246 70 250 100 C 224 72 200 76 176 96 Z" fill="#5a3d2b" />
+                {/* Brows */}
+                <path d="M186 128 q 6 -6 13 -3" stroke="#5a3d2b" strokeWidth="3" fill="none" strokeLinecap="round" />
+                <path d="M221 125 q 8 -3 13 3" stroke="#5a3d2b" strokeWidth="3" fill="none" strokeLinecap="round" />
+                {/* Eyes */}
+                <circle cx="194" cy="140" r="3.6" fill="#2f2018" />
+                <circle cx="227" cy="140" r="3.6" fill="#2f2018" />
+                {/* Rosy cheeks */}
+                <circle cx="184" cy="154" r="6" fill="#f2b28c" opacity="0.55" />
+                <circle cx="236" cy="154" r="6" fill="#f2b28c" opacity="0.55" />
+                {/* Warm smile */}
+                <path d="M192 156 q 17 16 34 0" stroke="#d97a5a" strokeWidth="3.5" fill="none" strokeLinecap="round" />
 
-                {/* Heartbeat line */}
-                <path d="M58 300 h 84 l 14 -22 18 40 14 -22 16 4 h 60" stroke="#10b981" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                <path d="M58 300 h 84 l 14 -20 18 38 14 -20 16 2 h 60" stroke="rgba(255,255,255,0.7)" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
+                {/* Modern medicine heartbeat line */}
+                <path d="M70 300 h 84 l 16 -24 20 44 16 -24 14 4 h 56" stroke="#10b981" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M70 300 h 84 l 16 -22 20 42 16 -22 14 2 h 56" stroke="rgba(255,255,255,0.7)" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
               </svg>
 
               {/* Floating decorative medical elements */}
